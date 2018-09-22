@@ -1,0 +1,68 @@
+{
+  "name": "bilive_electron",
+  "productName": "Bilive_Electron",
+  "version": "1.0.0",
+  "description": "Bilibili live tool, written with Electron and Vue.JS.",
+  "main": "build/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && npm-run-posix-or-windows build:copy",
+    "build:copy": "cp ./src/*.html ./build/ && cp -r ./src/lib ./build/lib/",
+    "build:copy:windows": "xcopy .\\src\\*.html .\\build\\ /Y && xcopy .\\src\\lib\\* .\\build\\lib\\* /Y",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
+  },
+  "keywords": [],
+  "author": "Vector000",
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb",
+          "rpm"
+        ]
+      },
+      "electronPackagerConfig": {
+        "packageManager": "npm"
+      },
+      "electronWinstallerConfig": {
+        "name": "Bilive_Electron"
+      },
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "",
+        "name": ""
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "Bilive_Electron"
+      }
+    }
+  },
+  "dependencies": {
+    "electron": "3.0.0",
+    "electron-compile": "^6.4.3",
+    "electron-squirrel-startup": "^1.0.0",
+    "node-abi": "^2.4.4",
+    "request": "^2.88.0",
+    "typescript": "^3.1.1",
+    "ws": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.11.2",
+    "@types/request": "^2.47.1",
+    "@types/ws": "^5.1.2",
+    "electron-forge": "^5.2.2",
+    "electron-prebuilt-compile": "3.0.0",
+    "npm-run-posix-or-windows": "^2.0.2"
+  }
+}

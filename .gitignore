@@ -1,0 +1,14 @@
+# IDE Templates
+.vscode
+
+# Dependency directories
+node_modules
+jspm_packages
+
+# Compiled Build Files
+build
+out
+
+# User Generated Files
+options
+package-lock.json
