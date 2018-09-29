@@ -1,402 +1,397 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Bilive B站直播挂机工具</title>
-    <link rel="stylesheet" href="lib/vuetify.min.css">
-    <link rel="stylesheet" href="lib/material.css">
-    <script src="lib/vue.js"></script>
-    <script src="lib/vuetify.js"></script>
-    <link rel="stylesheet" href="lib/index.css">
-  </head>
-  <body>
-    <div id="app">
-      <v-app v-scroll="onScroll">
-        <v-navigation-drawer fixed="fixed" clipped="clipped" v-model="drawer" width="200" app="app">
-          <v-list>
-            <v-list-tile v-for="subpage in subpages" :key="subpage.text" @click="showPages(subpage.text)" @click.stop="drawer = !drawer">
-              <v-list-tile-action>
-                <v-icon>{{ subpage.icon }}</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content class="zhFont">
-                <v-list-tile-title>
-                  {{ subpage.text }}
-                </v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-divider></v-divider>
-            <v-list-tile @click="showPages('设置')" @click.stop="drawer = !drawer">
-              <v-list-tile-action>
-                <v-icon color="grey darken-1">settings</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-title class="grey--text text--darken-1 zhFont">设置</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-navigation-drawer>
-        <v-toolbar color="#fb7299" dense="dense" fixed="fixed" clipped-left="clipped-left" app="app" absolute="absolute">
-          <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-          <v-toolbar-title class="mr-5 align-center">
-            <span class="title">{{ pageTitle }}</span>
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-text-field v-model="search" v-show="searchPanelShow" append-icon="search" label="Search" single-line="single-line" clearable="clearable" hide-details="hide-details"></v-text-field>
-          <v-tooltip bottom="bottom">
-            <span slot="activator">
-              <v-btn icon="icon" @click="showAbout">
-                <v-icon>info</v-icon>
-              </v-btn>
-            </span>
-            <span>关于</span>
-          </v-tooltip>
-        </v-toolbar>
-        <v-card class="zhFont" id="userInfo" v-show="userInfoShow">
-          <v-container fluid="fluid" grid-list-md="grid-list-md">
-            <v-layout row="row" wrap="wrap">
-              <v-flex v-for="user in users" xs4="xs4" md3="md3" :key="user.nickname">
-                <v-card color="white" class="black--text">
-                  <v-layout>
-                    <v-flex xs6="xs6">
-                      <v-layout align-center="align-center" fill-height="fill-height" justify-center="justify-center">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-avatar size="72">
-                              <v-img :src="user.face"></v-img>
-                            </v-avatar>
-                          </span>
-                          <span>啊！是这亮瞎眼的头像！</span>
-                        </v-tooltip>
-                      </v-layout>
-                      <v-layout justify-center="justify-center">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-icon>{{ user.ban ? 'lock' : 'lock_open' }}</v-icon>
-                          </span>
-                          <span>{{ user.ban ? '已封禁' : '未封禁' }}</span>
-                        </v-tooltip>
-                      </v-layout>
-                    </v-flex>
-                    <v-flex xs6="xs6">
-                      <v-layout align-center="align-center" fill-height="fill-height" justify-center="justify-center">
-                        <v-card-title primary-title="primary-title">
-                          <div>
+<head>
+  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Bilive B站直播挂机工具</title>
+  <link rel="stylesheet" href="lib/vuetify.min.css">
+  <link rel="stylesheet" href="lib/material.css">
+  <script src="lib/vue.js"></script>
+  <script src="lib/vuetify.js"></script>
+  <link rel="stylesheet" href="lib/index.css">
+</head>
+
+<body>
+  <div id="app">
+    <v-app v-scroll="onScroll">
+      <v-navigation-drawer temporary clipped="clipped" v-model="drawer" width="200" app="app">
+        <v-list>
+          <v-list-tile v-for="subpage in subpages" :key="subpage.text" @click="showPages(subpage.text)" @click.stop="drawer = !drawer">
+            <v-list-tile-action>
+              <v-icon>{{ subpage.icon }}</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content class="zhFont">
+              <v-list-tile-title>
+                {{ subpage.text }}
+              </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-divider></v-divider>
+          <v-list-tile @click="showPages('设置')" @click.stop="drawer = !drawer">
+            <v-list-tile-action>
+              <v-icon color="grey darken-1">settings</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-title class="grey--text text--darken-1 zhFont">设置</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+      </v-navigation-drawer>
+      <v-toolbar color="#fb7299" dense="dense" fixed="fixed" clipped-left="clipped-left" app="app" absolute="absolute">
+        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+        <v-toolbar-title class="mr-5 align-center">
+          <span class="title">{{ pageTitle }}</span>
+        </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-text-field v-model="search" v-show="searchPanelShow" append-icon="search" label="Search" single-line="single-line" clearable="clearable" hide-details="hide-details"></v-text-field>
+        <v-tooltip bottom="bottom">
+          <span slot="activator">
+            <v-btn icon="icon" @click="showAbout">
+              <v-icon>info</v-icon>
+            </v-btn>
+          </span>
+          <span>关于</span>
+        </v-tooltip>
+      </v-toolbar>
+      <v-card class="zhFont" id="userInfo" v-show="userInfoShow">
+        <v-container fluid="fluid" grid-list-md="grid-list-md">
+          <v-layout row="row" wrap="wrap">
+            <v-flex v-for="user in users" xs4="xs4" md3="md3" :key="user.nickname">
+              <v-card color="white" class="black--text">
+                <v-layout>
+                  <v-flex xs6="xs6">
+                    <v-layout align-center="align-center" fill-height="fill-height" justify-center="justify-center">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-avatar size="72">
+                            <v-img :src="user.face"></v-img>
+                          </v-avatar>
+                        </span>
+                        <span>啊！是这亮瞎眼的头像！</span>
+                      </v-tooltip>
+                    </v-layout>
+                    <v-layout justify-center="justify-center">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-icon>{{ user.ban ? 'lock' : 'lock_open' }}</v-icon>
+                        </span>
+                        <span>{{ user.ban ? '已封禁' : '未封禁' }}</span>
+                      </v-tooltip>
+                    </v-layout>
+                  </v-flex>
+                  <v-flex xs6="xs6">
+                    <v-layout align-center="align-center" fill-height="fill-height" justify-center="justify-center">
+                      <v-card-title primary-title="primary-title">
+                        <div>
+                          <v-tooltip bottom="bottom">
+                            <span slot="activator">
+                              <div class="headline userDataItems">{{ user.nickname }}</div>
+                            </span>
+                            <span>用户指定的客户端昵称</span>
+                          </v-tooltip>
+                          <v-tooltip bottom="bottom">
+                            <span slot="activator">
+                              <div class="userDataItems">{{ user.uname }}</div>
+                            </span>
+                            <span>是破站的用户名呢</span>
+                          </v-tooltip>
+                          <div class="userDataItems">
                             <v-tooltip bottom="bottom">
                               <span slot="activator">
-                                <div class="headline userDataItems">{{ user.nickname }}</div>
+                                <v-progress-circular :size="50" :width="7" :value="user.exp / user.fullexp * 100" color="#fb7299">{{ user.lv }}</v-progress-circular>
                               </span>
-                              <span>用户指定的客户端昵称</span>
+                              <span>EXP:
+                                {{ user.exp }}/{{ user.fullexp }}
+                                排名:
+                                {{ user.rank }}</span>
                             </v-tooltip>
                             <v-tooltip bottom="bottom">
                               <span slot="activator">
-                                <div class="userDataItems">{{ user.uname }}</div>
+                                <v-icon class="icon" :class="vipStatus(user.vip, user.svip)[0]"></v-icon>
                               </span>
-                              <span>是破站的用户名呢</span>
+                              <span>{{ vipStatus(user.vip, user.svip)[1] }}</span>
                             </v-tooltip>
-                            <div class="userDataItems">
+                          </div>
+                          <div class="userDataItems">
+                            <div class="medal" :class="medalColor(user.medalLv)" v-if="user.medal.length !== 0">
+                              <v-tooltip bottom="bottom">
+                                <span slot="activator"><span class="label">{{ user.medal }}</span><span class="level">{{ user.medalLv }}</span></span>
+                                <span>主播:
+                                  {{ user.medalUp }}
+                                  获取时间：{{ user.medalTime }}</span>
+                              </v-tooltip>
+                            </div>
+                            <div class="medal lv0" v-if="user.medal.length === 0">
+                              <v-tooltip bottom="bottom">
+                                <span slot="activator"><span class="label">无勋章</span><span class="level">0</span></span>
+                                <span>勋章？不存在的</span>
+                              </v-tooltip>
+                            </div>
+                            <span>
                               <v-tooltip bottom="bottom">
                                 <span slot="activator">
-                                  <v-progress-circular :size="50" :width="7" :value="user.exp / user.fullexp * 100" color="#fb7299">{{ user.lv }}</v-progress-circular>
+                                  <v-progress-linear background-color="grey" :value="user.medalExp / user.medalFullExp * 100" color="#fb7299"></v-progress-linear>
                                 </span>
                                 <span>EXP:
-                                  {{ user.exp }}/{{ user.fullexp }}
+                                  {{ user.medalExp }}/{{ user.medalFullExp }}
                                   排名:
-                                  {{ user.rank }}</span>
+                                  {{ user.medalRank }}</span>
                               </v-tooltip>
-                              <v-tooltip bottom="bottom">
-                                <span slot="activator">
-                                  <v-icon class="icon" :class="vipStatus(user.vip, user.svip)[0]"></v-icon>
-                                </span>
-                                <span>{{ vipStatus(user.vip, user.svip)[1] }}</span>
-                              </v-tooltip>
-                            </div>
-                            <div class="userDataItems">
-                              <div class="medal" :class="medalColor(user.medalLv)" v-if="user.medal.length !== 0">
-                                <v-tooltip bottom="bottom">
-                                  <span slot="activator"><span class="label">{{ user.medal }}</span><span class="level">{{ user.medalLv }}</span></span>
-                                  <span>主播:
-                                    {{ user.medalUp }}
-                                    获取时间：{{ user.medalTime }}</span>
-                                </v-tooltip>
-                              </div>
-                              <div class="medal lv0" v-if="user.medal.length === 0">
-                                <v-tooltip bottom="bottom">
-                                  <span slot="activator"><span class="label">无勋章</span><span class="level">0</span></span>
-                                  <span>勋章？不存在的</span>
-                                </v-tooltip>
-                              </div>
-                              <span>
-                                <v-tooltip bottom="bottom">
-                                  <span slot="activator">
-                                    <v-progress-linear background-color="grey" :value="user.medalExp / user.medalFullExp * 100" color="#fb7299"></v-progress-linear>
-                                  </span>
-                                  <span>EXP:
-                                    {{ user.medalExp }}/{{ user.medalFullExp }}
-                                    排名:
-                                    {{ user.medalRank }}</span>
-                                </v-tooltip>
-                              </span>
-                            </div>
+                            </span>
                           </div>
-                        </v-card-title>
-                      </v-layout>
+                        </div>
+                      </v-card-title>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn icon="icon" @click="user.showItems = !user.showItems">
+                    <v-icon>{{ user.showItems ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
+                  </v-btn>
+                </v-card-actions>
+                <v-slide-y-transition>
+                  <v-container fluid="fluid" grid-list-md="grid-list-md" v-show="user.showItems">
+                    <v-layout align-start="align-start" row="row" wrap="wrap">
+                      <v-flex xs3="xs3">
+                        <v-icon class="icon silver-seed"></v-icon><br />
+                        {{ user.silver }}
+                      </v-flex>
+                      <v-flex xs3="xs3">
+                        <v-icon class="icon gold-seed"></v-icon><br />
+                        {{ user.gold }}
+                      </v-flex>
+                      <v-flex xs3="xs3">
+                        <v-icon class="icon hard-coin"></v-icon><br />
+                        {{ user.coin }}
+                      </v-flex>
+                      <v-flex xs3="xs3">
+                        <v-icon class="icon achieve"></v-icon><br />
+                        {{ user.achieve }}
+                      </v-flex>
+                    </v-layout>
+                    <v-layout row="row" wrap="wrap">
+                      <v-flex v-for="item in user.bag" xs2="xs2">
+                        <v-badge overlap="overlap">
+                          <span slot="badge">{{ item.num }}</span>
+                          <v-tooltip bottom="bottom">
+                            <v-avatar slot="activator" size="28px">
+                              <v-img :src="item.img"></v-img>
+                            </v-avatar>
+                            <span>{{ item.name }}：有效期{{ (item.expireat / 3600).toFixed(1) }}小时</span>
+                          </v-tooltip>
+                        </v-badge>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-slide-y-transition>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+      <v-data-table class="zhFont" id="logList" :headers="headers" :items="logData" :search="search" item-key="id" v-show="logShow">
+        <template slot="headerCell" slot-scope="props">
+          <v-tooltip bottom="bottom">
+            <span slot="activator">{{ props.header.text }}</span>
+            <span>{{ props.header.description }}</span>
+          </v-tooltip>
+        </template>
+        <template slot="items" slot-scope="props">
+          <tr>
+            <td>{{ props.item.time }}</td>
+            <td class="text-xs-right">{{ props.item.content }}</td>
+          </tr>
+        </template>
+        <v-alert slot="no-results" :value="true" color="error" icon="warning">
+          Your search for "{{ search }}" found no results.
+        </v-alert>
+      </v-data-table>
+      <v-card class="zhFont" id="setting" v-show="settingShow">
+        <v-container fluid="fluid" grid-list-md="grid-list-md">
+          <v-layout row="row" wrap="wrap">
+            <v-flex v-for="config" xs12="xs12" align-center="align-center">
+              <v-card color="white" class="black--text" align-center="align-center">
+                <v-container grid-list-md="grid-list-md">
+                  <v-layout row="row" wrap="wrap">
+                    <v-flex xs6="xs6">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model.number="config.defaultUserID" label="默认UserID" type="number" outline="outline"></v-text-field>
+                        </span>
+                        <span>用来监听系统消息的用户ID, 默认为0</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex xs6="xs6">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model.number="config.listenNumber" label="监听分区房间数" type="number" outline="outline"></v-text-field>
+                        </span>
+                        <span>四个分区分别监听的房间数，默认为3，网络环境好的可以适当增加（上限10）</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex xs6="xs6">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-combobox color="#fb7299" :value="config.eventRooms" @input="config.eventRooms=[];arguments[0].forEach((data) => {config.eventRooms.push(parseInt(data))})" multiple="multiple" chips="chips" label="活动房间" type="number"></v-combobox>
+                        </span>
+                        <span>挂取活动道具的房间, 默认为3(官方音乐台), 有时活动只有主播报名才可以参加</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex xs6="xs6">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model.number="config.droprate" label="丢弃抽奖概率" type="number" outline="outline"></v-text-field>
+                        </span>
+                        <span>随机丢弃某个抽奖的概率，范围0~100（百分比）</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex shrink="shrink" style="width: 40px">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model.number="config.rafflePause[0]" hide-details="hide-details" single-line="single-line" type="number"></v-text-field>
+                        </span>
+                        <span>暂停抽奖时间的下限</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex>
+                      <v-range-slider color="#fb7299" v-model="config.rafflePause" :max="24" :min="0" :step="1"></v-range-slider>
+                    </v-flex>
+                    <v-flex shrink="shrink" style="width: 40px">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model.number="config.rafflePause[1]" hide-details="hide-details" single-line="single-line" type="number"></v-text-field>
+                        </span>
+                        <span>暂停抽奖时间的上限</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex xs12="xs12">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model="config.adminServerChan" label="Server酱" type="text" outline="outline"></v-text-field>
+                        </span>
+                        <span>Server酱的SCKEY, 所有推送信息都会发送到此账号</span>
+                      </v-tooltip>
                     </v-flex>
                   </v-layout>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn icon="icon" @click="user.showItems = !user.showItems">
-                      <v-icon>{{ user.showItems ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
-                    </v-btn>
+                    <v-btn color="#fb7299" @click="setConfig">保存设置</v-btn>
                   </v-card-actions>
-                  <v-slide-y-transition>
-                    <v-container fluid="fluid" grid-list-md="grid-list-md" v-show="user.showItems">
-                      <v-layout align-start="align-start" row="row" wrap="wrap">
-                        <v-flex xs3="xs3">
-                          <v-icon class="icon silver-seed"></v-icon><br/>
-                          {{ user.silver }}
-                        </v-flex>
-                        <v-flex xs3="xs3">
-                          <v-icon class="icon gold-seed"></v-icon><br/>
-                          {{ user.gold }}
-                        </v-flex>
-                        <v-flex xs3="xs3">
-                          <v-icon class="icon hard-coin"></v-icon><br/>
-                          {{ user.coin }}
-                        </v-flex>
-                        <v-flex xs3="xs3">
-                          <v-icon class="icon achieve"></v-icon><br/>
-                          {{ user.achieve }}
-                        </v-flex>
-                      </v-layout>
-                      <v-layout row="row" wrap="wrap">
-                        <v-flex v-for="item in user.bag" xs2="xs2">
-                          <v-badge overlap="overlap">
-                            <span slot="badge">{{ item.num }}</span>
-                            <v-tooltip bottom="bottom">
-                              <v-avatar slot="activator" size="28px">
-                                <v-img :src="item.img"></v-img>
-                              </v-avatar>
-                              <span>{{ item.name }}：有效期{{ (item.expireat / 3600).toFixed(1) }}小时</span>
-                            </v-tooltip>
-                          </v-badge>
-                        </v-flex>
-                      </v-layout>
-                    </v-container>
-                  </v-slide-y-transition>
-                </v-card>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card>
-        <v-data-table class="zhFont" id="logList" :headers="headers" :items="logData" :search="search" item-key="id" v-show="logShow">
-          <template slot="headerCell" slot-scope="props">
-            <v-tooltip bottom="bottom">
-              <span slot="activator">{{ props.header.text }}</span>
-              <span>{{ props.header.description }}</span>
-            </v-tooltip>
-          </template>
-          <template slot="items" slot-scope="props">
-            <tr>
-              <td>{{ props.item.time }}</td>
-              <td class="text-xs-right">{{ props.item.content }}</td>
-            </tr>
-          </template>
-          <v-alert slot="no-results" :value="true" color="error" icon="warning">
-            Your search for "{{ search }}" found no results.
-          </v-alert>
-        </v-data-table>
-        <v-card class="zhFont" id="setting" v-show="settingShow">
-          <v-container fluid="fluid" grid-list-md="grid-list-md">
-            <v-layout row="row" wrap="wrap">
-              <v-flex v-for="config" xs12="xs12" align-center="align-center">
-                <v-card color="white" class="black--text" align-center="align-center">
-                  <v-container grid-list-md="grid-list-md">
-                    <v-layout row="row" wrap="wrap">
-                      <v-flex xs6="xs6">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model.number="config.defaultUserID" label="默认UserID" type="number" outline="outline"></v-text-field>
-                          </span>
-                          <span>用来监听系统消息的用户ID, 默认为0</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex xs6="xs6">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model.number="config.listenNumber" label="监听分区房间数" type="number" outline="outline"></v-text-field>
-                          </span>
-                          <span>四个分区分别监听的房间数，默认为3，网络环境好的可以适当增加（上限10）</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex xs6="xs6">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-combobox color="#fb7299" :value="config.eventRooms" @input="config.eventRooms=[];arguments[0].forEach((data) => {config.eventRooms.push(parseInt(data))})" multiple="multiple" chips="chips" label="活动房间" type="number"></v-combobox>
-                          </span>
-                          <span>挂取活动道具的房间, 默认为3(官方音乐台), 有时活动只有主播报名才可以参加</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex xs6="xs6">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model.number="config.droprate" label="丢弃抽奖概率" type="number" outline="outline"></v-text-field>
-                          </span>
-                          <span>随机丢弃某个抽奖的概率，范围0~100（百分比）</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex shrink="shrink" style="width: 40px">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model.number="config.rafflePause[0]" hide-details="hide-details" single-line="single-line" type="number"></v-text-field>
-                          </span>
-                          <span>暂停抽奖时间的下限</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex>
-                        <v-range-slider color="#fb7299" v-model="config.rafflePause" :max="24" :min="0" :step="1"></v-range-slider>
-                      </v-flex>
-                      <v-flex shrink="shrink" style="width: 40px">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model.number="config.rafflePause[1]" hide-details="hide-details" single-line="single-line" type="number"></v-text-field>
-                          </span>
-                          <span>暂停抽奖时间的上限</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex xs12="xs12">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model="config.adminServerChan" label="Server酱" type="text" outline="outline"></v-text-field>
-                          </span>
-                          <span>Server酱的SCKEY, 所有推送信息都会发送到此账号</span>
-                        </v-tooltip>
-                      </v-flex>
-                    </v-layout>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="#fb7299" @click="setConfig">保存设置</v-btn>
-                    </v-card-actions>
-                  </v-container>
-                </v-card>
-              </v-flex>
-              <v-flex class="userSettings" v-for="user in users" xs4="xs4" :key="user.nickname">
-                <v-card color="white" class="black--text">
-                  <v-container grid-list-md="grid-list-md">
-                    <v-layout align-center="align-center" fill-height="fill-height" row="row" wrap="wrap">
-                      <v-flex class="userSettingItem" xs12="xs12">
-                        <v-text-field color="#fb7299" v-model="user.nickname" label="昵称" outline="outline" clearable="clearable"></v-text-field>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs12="xs12">
-                        <v-text-field color="#fb7299" v-model="user.userName" label="用户名" outline="outline" clearable="clearable"></v-text-field>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs12="xs12">
-                        <v-text-field
-                          color="#fb7299"
-                          v-model="user.passWord"
-                          :append-icon="user.showPassword ? 'visibility_off' : 'visibility'"
-                          :type="user.showPassword ? 'text' : 'password'"
-                          label="密码"
-                          @click:append="user.showPassword = !user.showPassword"
-                          outline="outline"
-                          clearable="clearable"></v-text-field>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-switch color="#fb7299" v-model="user.status" label="开关"></v-switch>
-                          </span>
-                          <span>用户设置的总开关, 关闭时以下设置全部失效</span>
-                        </v-tooltip>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.doSign" label="签到"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.treasureBox" label="领宝箱"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.raffle" label="抽奖"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6" v-if="user.raffle">
-                        <v-checkbox color="#fb7299" v-model="user.appraffle" label="app抽奖"></v-checkbox>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6" v-if="user.raffle">
-                        <v-checkbox color="#fb7299" v-model="user.raffleLimit" label="抽奖限制"></v-checkbox>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.eventRoom" label="每日任务"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.silver2coin" label="硬币兑换"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.autoSend" label="自动送礼v2"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs6="xs6">
-                        <v-switch color="#fb7299" v-model="user.signGroup" label="应援团签到"></v-switch>
-                      </v-flex>
-                      <v-flex class="userSettingItem" xs12="xs12">
-                        <v-tooltip bottom="bottom">
-                          <span slot="activator">
-                            <v-text-field color="#fb7299" v-model.number="user.sendGiftRoom" v-on:change="user.sendGiftRoom > 0 ? user.sendGift = true : user.sendGift = false" label="自动送礼房间" type="number" outline="outline"></v-text-field>
-                          </span>
-                          <span>要自动送出礼物的房间号，0为禁用</span>
-                        </v-tooltip>
-                      </v-flex>
-                    </v-layout>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                      <v-btn color="#fb7299" small="small" dark="dark" fab="fab" @click="delUserData(user.uid)">
-                        <v-icon>delete</v-icon>
-                      </v-btn>
-                      <v-spacer></v-spacer>
-                      <v-btn color="#fb7299" @click="setUserData(user)">保存设置</v-btn>
-                    </v-card-actions>
-                  </v-container>
-                </v-card>
-              </v-flex>
-              <v-btn color="#fb7299" large="large" dark="dark" absolute="absolute" bottom="bottom" right="right" fab="fab" @click="newUserData">
-                <v-icon>add</v-icon>
-              </v-btn>
-            </v-layout>
-          </v-container>
-        </v-card>
-        <v-snackbar class="zhFont" v-model="snackbar.show" :timeout="snackbar.timeout" top="top">
-          {{ snackbar.text }}
-          <v-btn color="#fb7299" flat="flat" @click="snackbar.show = false">Close</v-btn>
-        </v-snackbar>
-        <template>
-          <div class="text-xs-center zhFont">
-            <v-dialog v-model="dialog.show" width="500">
-              <v-card>
-                <v-card-title class="headline grey lighten-2" primary-title="primary-title">{{ dialog.title }}</v-card-title>
-                <v-flex v-for="text in dialog.text" dense>
-                  <v-card-text>{{ text }}</v-card-text>
-                </v-flex>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="primary" flat="flat" @click="dialog = false">{{ dialog.shutOption }}</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </div>
-          <v-dialog width="150px" v-model="loading" hide-overlay="hide-overlay" persistent="persistent">
-            <v-card color="#fb7299" dark="dark">
-                <v-container grid-list-md="grid-list-md">
-                    <v-flex xs12 class="loadingSign">
-                      <v-layout align-center="align-center" fill-height="fill-height" justify-center="justify-center">
-                        <v-progress-circular indeterminate="indeterminate" color="white"></v-progress-circular>
-                      </v-layout>
-                    </v-flex>
                 </v-container>
-                </v-card>
+              </v-card>
+            </v-flex>
+            <v-flex class="userSettings" v-for="user in users" xs4="xs4" :key="user.nickname">
+              <v-card color="white" class="black--text">
+                <v-container grid-list-md="grid-list-md">
+                  <v-layout align-center="align-center" fill-height="fill-height" row="row" wrap="wrap">
+                    <v-flex class="userSettingItem" xs12="xs12">
+                      <v-text-field color="#fb7299" v-model="user.nickname" label="昵称" outline="outline" clearable="clearable"></v-text-field>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs12="xs12">
+                      <v-text-field color="#fb7299" v-model="user.userName" label="用户名" outline="outline" clearable="clearable"></v-text-field>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs12="xs12">
+                      <v-text-field color="#fb7299" v-model="user.passWord" :append-icon="user.showPassword ? 'visibility_off' : 'visibility'" :type="user.showPassword ? 'text' : 'password'" label="密码" @click:append="user.showPassword = !user.showPassword"
+                        outline="outline" clearable="clearable"></v-text-field>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-switch color="#fb7299" v-model="user.status" label="开关"></v-switch>
+                        </span>
+                        <span>用户设置的总开关, 关闭时以下设置全部失效</span>
+                      </v-tooltip>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.doSign" label="签到"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.treasureBox" label="领宝箱"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.raffle" label="抽奖"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6" v-if="user.raffle">
+                      <v-checkbox color="#fb7299" v-model="user.appraffle" label="app抽奖"></v-checkbox>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6" v-if="user.raffle">
+                      <v-checkbox color="#fb7299" v-model="user.raffleLimit" label="抽奖限制"></v-checkbox>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.eventRoom" label="每日任务"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.silver2coin" label="硬币兑换"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.autoSend" label="自动送礼v2"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.signGroup" label="应援团签到"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs12="xs12">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-text-field color="#fb7299" v-model.number="user.sendGiftRoom" v-on:change="user.sendGiftRoom > 0 ? user.sendGift = true : user.sendGift = false" label="自动送礼房间" type="number" outline="outline"></v-text-field>
+                        </span>
+                        <span>要自动送出礼物的房间号，0为禁用</span>
+                      </v-tooltip>
+                    </v-flex>
+                  </v-layout>
+                  <v-divider></v-divider>
+                  <v-card-actions>
+                    <v-btn color="#fb7299" small="small" dark="dark" fab="fab" @click="delUserData(user.uid)">
+                      <v-icon>delete</v-icon>
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn color="#fb7299" @click="setUserData(user)">保存设置</v-btn>
+                  </v-card-actions>
+                </v-container>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+      <v-snackbar class="zhFont" v-model="snackbar.show" :timeout="snackbar.timeout" top="top">
+        {{ snackbar.text }}
+        <v-btn color="#fb7299" flat="flat" @click="snackbar.show = false">Close</v-btn>
+      </v-snackbar>
+      <template>
+        <div class="text-xs-center zhFont">
+          <v-dialog v-model="dialog.show" width="500">
+            <v-card>
+              <v-card-title class="headline grey lighten-2" primary-title="primary-title">{{ dialog.title }}</v-card-title>
+              <v-flex v-for="text in dialog.text" dense>
+                <v-card-text>{{ text }}</v-card-text>
+              </v-flex>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" flat="flat" @click="dialog = false">{{ dialog.shutOption }}</v-btn>
+              </v-card-actions>
+            </v-card>
           </v-dialog>
-        </template>
-        <v-btn id="topButton" color="#fb7299" v-if="topButtonShow" fab="fab" fixed="fixed" bottom="bottom" right="right" small="small" dark="dark" @click="window.scrollTo(0, 0);">
-          <v-icon>keyboard_arrow_up</v-icon>
-        </v-btn>
-      </v-app>
-    </div>
-  </body>
-  <script src="lib/index.js"></script>
+        </div>
+        <v-dialog width="150px" v-model="loading" hide-overlay="hide-overlay" persistent="persistent">
+          <v-card color="#fb7299" dark="dark">
+            <v-container grid-list-md="grid-list-md">
+              <v-flex xs12 class="loadingSign">
+                <v-layout align-center="align-center" fill-height="fill-height" justify-center="justify-center">
+                  <v-progress-circular indeterminate="indeterminate" color="white"></v-progress-circular>
+                </v-layout>
+              </v-flex>
+            </v-container>
+          </v-card>
+        </v-dialog>
+      </template>
+      <v-btn id="topButton" color="#fb7299" v-if="topButtonShow" fab="fab" fixed="fixed" bottom="bottom" right="right" small="small" dark="dark" @click="window.scrollTo(0, 0);">
+        <v-icon>keyboard_arrow_up</v-icon>
+      </v-btn>
+      <v-btn id="addButton" color="#fb7299" v-show="settingShow" small dark="dark" fixed bottom="bottom" right="right" fab="fab" @click="newUserData">
+        <v-icon>add</v-icon>
+      </v-btn>
+    </v-app>
+  </div>
+</body>
+<script src="lib/index.js"></script>
+
 </html>

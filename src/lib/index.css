@@ -1,19 +1,24 @@
 html {
   overflow-y: auto;
 }
+
 .zhFont {
   font-family: -apple-system, SF UI Text, Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, WenQuanYi Micro Hei, sans-serif;
 }
+
 .loadingSign {
   margin-top: 40px;
   margin-bottom: 40px;
 }
+
 #userInfo {
   margin-top: 70px;
 }
+
 .userDataItems {
   margin-bottom: 10px;
 }
+
 .icon {
   display: inline-block;
   width: 16px;
@@ -25,30 +30,38 @@ html {
   background-repeat: no-repeat;
   background-size: 1em 113em;
 }
+
 .vip-gray {
   margin-left: 10px;
   background-position: 0 -105em;
 }
+
 .vip-color {
   margin-left: 10px;
   background-position: 0 -104em;
 }
+
 .vip-year-color {
   margin-left: 10px;
   background-position: 0 -106em;
 }
+
 .silver-seed {
   background-position: 0 -87em;
 }
+
 .gold-seed {
   background-position: 0 -35em;
 }
+
 .hard-coin {
   background-position: 0 -9em;
 }
+
 .achieve {
   background-position: 0 -2em;
 }
+
 .medal {
   display: inline-block;
   height: 14px;
@@ -57,6 +70,7 @@ html {
   font-size: 12px;
   vertical-align: middle;
 }
+
 .medal .label {
   position: relative;
   display: block;
@@ -67,6 +81,7 @@ html {
   text-align: center;
   padding: 0 2px;
 }
+
 .medal .level {
   position: relative;
   display: block;
@@ -75,72 +90,94 @@ html {
   text-align: center;
   border-radius: 2px;
 }
+
 .lv0 .label {
   background-color: #999999;
   border: 1px solid #999999;
 }
+
 .lv0 .level {
   color: #999999;
   border: 1px solid #999999;
 }
+
 .lv1 .label {
   background-color: #61decb;
   border: 1px solid #61decb;
 }
+
 .lv1 .level {
   color: #61decb;
   border: 1px solid #61decb;
 }
+
 .lv5 .label {
   background-color: #5896de;
   border: 1px solid #5896de;
 }
+
 .lv5 .level {
   color: 5896de;
   border: 1px solid #5896de;
 }
+
 .lv9 .label {
   background-color: #a068f1;
   border: 1px solid #a068f1;
 }
+
 .lv9 .level {
   color: #a068f1;
   border: 1px solid #a068f1;
 }
+
 .lv13 .label {
   background-color: #ff86b2;
   border: 1px solid #ff86b2;
 }
+
 .lv13 .level {
   color: #ff86b2;
   border: 1px solid #ff86b2;
 }
+
 .lv17 .label {
   background-color: #f6be18;
   border: 1px solid #f6be18;
 }
+
 .lv17 .level {
   color: #f6be18;
   border: 1px solid #f6be18;
 }
+
 #logList {
   margin-top: 60px;
   width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
+
 #setting {
   margin-top: 70px;
   margin-bottom: 60px;
   padding-bottom: 50px;
 }
+
 .userSettings {
   margin-top: 30px;
 }
+
 .userSettingItem {
   height: 65px;
 }
+
 #topButton {
-  bottom: 130px;
-  right: 20px;
+  bottom: 100px;
+  right: 10px;
+}
+
+#addButton {
+  bottom: 30px;
+  right: 10px;
 }

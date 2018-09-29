@@ -1,7 +1,7 @@
 {
   "name": "bilive_electron",
   "productName": "Bilive_Electron",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bilibili live tool, written with Electron and Vue.JS.",
   "main": "build/main.js",
   "scripts": {
@@ -10,8 +10,7 @@
     "build:copy:windows": "xcopy .\\src\\*.html .\\build\\ /Y && xcopy .\\src\\lib\\* .\\build\\lib\\* /Y",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "make": "electron-forge make"
   },
   "keywords": [],
   "author": "Vector000",
@@ -31,7 +30,8 @@
         ]
       },
       "electronPackagerConfig": {
-        "packageManager": "npm"
+        "packageManager": "npm",
+        "icon": "src/lib/icon.ico"
       },
       "electronWinstallerConfig": {
         "name": "Bilive_Electron"
@@ -49,7 +49,7 @@
     }
   },
   "dependencies": {
-    "electron": "3.0.0",
+    "electron": "^3.0.0",
     "electron-compile": "^6.4.3",
     "electron-squirrel-startup": "^1.0.0",
     "node-abi": "^2.4.4",

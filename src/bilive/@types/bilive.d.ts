@@ -5,26 +5,12 @@
  * @interface options
  */
 interface _options {
-  server: server
   config: config
   user: userCollection
   newUserData: userData
-  info: optionsInfo
   giftID: giftItem[]
   apiIPs: string[]
   roomList: [number, number][]
-}
-interface giftItem {
-  id: number
-  name: string
-  price: number
-  img: string
-}
-interface server {
-  path: string
-  hostname: string
-  port: number
-  protocol: string
 }
 interface config {
   [index: string]: number | string | number[]
@@ -39,7 +25,7 @@ interface userCollection {
   [index: string]: userData
 }
 interface userData {
-  [index: string]: string | boolean | number
+  [index: string]: string | boolean | number | []
   nickname: string
   userName: string
   passWord: string
@@ -47,58 +33,48 @@ interface userData {
   accessToken: string
   refreshToken: string
   cookie: string
+  uname: string
+  face: string
+  lv: number
+  exp: number
+  fullexp: number
+  rank: number
+  vip: number
+  svip: number
+  achieve: number
+  medal: string
+  medalLv: number
+  medalExp: number
+  medalFullExp: number
+  medalTodayFeed: number
+  medalTodayLimit: number
+  medalRank: number
+  medalUp: string
+  medalTime: string
+  gold: number
+  silver: number
+  coin: number
+  bag: []
   status: boolean
-  getuserInfo: boolean
-  getGiftBag: boolean
   doSign: boolean
   treasureBox: boolean
-  silver2coin: boolean
   raffle: boolean
   appraffle: boolean
   raffleLimit: boolean
   ban: boolean
+  banTime: number,
   eventRoom: boolean
+  silver2coin: boolean
   sendGift: boolean
   sendGiftRoom: number
   autoSend: boolean
   signGroup: boolean
-  bag: any
 }
-interface optionsInfo {
-  [index: string]: configInfoData
-  defaultUserID: configInfoData
-  eventRooms: configInfoData
-  rafflePause: configInfoData
-  droprate: configInfoData
-  adminServerChan: configInfoData
-  nickname: configInfoData
-  userName: configInfoData
-  passWord: configInfoData
-  biliUID: configInfoData
-  accessToken: configInfoData
-  refreshToken: configInfoData
-  cookie: configInfoData
-  status: configInfoData
-  getuserInfo: configInfoData
-  getGiftBag: configInfoData
-  doSign: configInfoData
-  treasureBox: configInfoData
-  silver2coin: configInfoData
-  raffle: configInfoData
-  appraffle: configInfoData
-  raffleLimit: configInfoData
-  ban: configInfoData
-  eventRoom: configInfoData
-  sendGift: configInfoData
-  sendGiftRoom: configInfoData
-  autoSend: configInfoData
-  signGroup: configInfoData
-}
-interface configInfoData {
-  description: string
-  tip: string
-  type: string
-  cognate?: string
+interface giftItem {
+  id: number
+  name: string
+  price: number
+  img: string
 }
 // bilive_client
 /**

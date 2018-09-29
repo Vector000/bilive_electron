@@ -310,7 +310,7 @@ class DMclient extends EventEmitter {
   protected _ClientConnectHandler() {
     let data: string
     if (this._protocol === 'socket')
-      data = JSON.stringify({ roomid: this.roomID, uid: this.userID, from: 0, platform: 'android', clientver: '5.31.3.5310300', hwid: AppClient.DeviceID, protover: 2 })
+      data = JSON.stringify({ roomid: this.roomID, uid: this.userID, from: 0, platform: 'android', clientver: '5.32.0.5320000', hwid: AppClient.DeviceID, protover: 2 })
     else if (this._protocol === 'flash')
       data = JSON.stringify({ roomid: this.roomID, platform: 'flash', uid: this.userID, protover: 2, clientver: '2.2.11-ffe71d94' })
     else data = JSON.stringify({ uid: this.userID, roomid: this.roomID, protover: 1, platform: 'web', clientver: '1.4.7' })

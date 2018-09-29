@@ -2,6 +2,7 @@ import tools from './lib/tools'
 import Online from './online'
 import AppClient from './lib/app_client'
 import { liveOrigin, apiVCOrigin, apiLiveOrigin, _options, _user } from './index'
+import { webContents } from 'electron'
 /**
  * Creates an instance of User.
  *
@@ -118,13 +119,15 @@ class User extends Online {
    */
   public async treasureBox() {
     if (this._treasureBox || !this.userData.treasureBox) return
+    if (new Date().getTime() - this.userData.banTime < 5 * 60 * 60 * 1000) return // 5h ban determine
     // 获取宝箱状态,换房间会重新冷却
     const currentTask = await tools.XHR<currentTask>({
       uri: `${apiLiveOrigin}/mobile/freeSilverCurrentTask?${AppClient.signQueryBase(this.tokenQuery)}`,
       json: true,
       headers: this.headers
     }, 'Android')
-    if (currentTask !== undefined && currentTask.response.statusCode === 200) {
+    if (currentTask === undefined) return
+    if (currentTask.response.statusCode === 200) {
       if (currentTask.body.code === 0) {
         await tools.Sleep(currentTask.body.data.minute * 6e4)
         await tools.XHR<award>({
@@ -138,6 +141,14 @@ class User extends Online {
         this._treasureBox = true
         tools.Log(this.nickname, '每日宝箱', '已领取所有宝箱')
       }
+    }
+    else if (currentTask.body.code === 400 && currentTask.body.msg === '访问被拒绝') {
+      if (this.userData.ban === false) {
+        tools.sendSCMSG(`${this.nickname} 已被封禁`)
+        this.userData.ban = true
+      }
+      this.userData.banTime = new Date().getTime()
+      tools.Options(_options)
     }
   }
   /**
@@ -460,6 +471,10 @@ class User extends Online {
       this.userData.bag = bagItem
     }
     tools.Options(_options)
+    let allContents = webContents.getAllWebContents()
+    allContents.forEach((windowContent) => {
+      windowContent.send('MTOR', { cmd: 'getUserData', uid: this.uid, data: this.userData })
+    })
   }
   /**
    * 获取并领取不同房间的上船信息

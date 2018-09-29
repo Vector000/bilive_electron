@@ -1,6 +1,6 @@
 import tools from './lib/tools'
 import AppClient from './lib/app_client'
-import { liveOrigin, apiLiveOrigin, smallTVPathname, rafflePathname, lotteryPathname } from './index'
+import { liveOrigin, apiLiveOrigin, smallTVPathname, rafflePathname, lotteryPathname, _options } from './index'
 /**
  * 自动参与抽奖
  *
@@ -82,19 +82,19 @@ class Raffle {
         if (this._options.user.userData.ban === true) {
           tools.sendSCMSG(`${this._options.user.nickname} 已解除封禁`)
           this._options.user.userData.ban = false
+          this._options.user.userData.banTime = 0
         }
         await tools.Sleep(this._options.time * 1000 + 15 * 1000)
         this._RaffleReward()
       }
       else tools.Log(this._options.user.nickname, this._options.title, this._options.raffleId, raffleJoin.body)
       if (raffleJoin.body.code === 400 && raffleJoin.body.msg === '访问被拒绝') {
-        if (this._options.user.userData.ban === true) {
+        if (this._options.user.userData.ban === false) {
           tools.sendSCMSG(`${this._options.user.nickname} 已被封禁`)
-          this._options.user.userData.ban = false
+          this._options.user.userData.ban = true
         }
-        this._options.user.userData.raffle = false
-        await tools.Sleep(2 * 60 * 60 * 1000)
-        this._options.user.userData.raffle = true
+        this._options.user.userData.banTime = new Date().getTime()
+        tools.Options(_options)
       }
     }
     else this._RaffleAward()
@@ -123,6 +123,7 @@ class Raffle {
       if (this._options.user.userData.ban === true) {
         tools.sendSCMSG(`${this._options.user.nickname} 已解除封禁`)
         this._options.user.userData.ban = false
+        this._options.user.userData.banTime = 0
       }
       const gift = raffleAward.body.data
       if (gift.gift_num === 0) tools.Log(this._options.user.nickname, `抽奖 ${this._options.raffleId}`, raffleAward.body.msg)
@@ -137,10 +138,9 @@ class Raffle {
       if (this._options.user.userData.ban === false) {
         tools.sendSCMSG(`${this._options.user.nickname} 已被封禁`)
         this._options.user.userData.ban = true
+        tools.Options(_options)
       }
-      this._options.user.userData.raffle = false
-      await tools.Sleep(2 * 60 * 60 * 1000)
-      this._options.user.userData.raffle = true
+      this._options.user.userData.banTime = new Date().getTime()
     }
   }
   /**

@@ -21,7 +21,7 @@ function getHeaders(platform: string): request.Headers {
     case 'Android':
       return {
         'Connection': 'Keep-Alive',
-        'User-Agent': 'Mozilla/5.0 BiliDroid/5.31.3 (bbcallen@gmail.com)'
+        'User-Agent': 'Mozilla/5.0 BiliDroid/5.32.0 (bbcallen@gmail.com)'
       }
     case 'WebView':
       return {
@@ -30,7 +30,7 @@ function getHeaders(platform: string): request.Headers {
         'Connection': 'keep-alive',
         'Cookie': 'l=v',
         'Origin': liveOrigin,
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 8.0.0; G8142 Build/47.1.A.8.49; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/68.0.3440.91 Mobile Safari/537.36 BiliApp/5310300',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 8.0.0; G8142 Build/47.1.A.8.49; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/68.0.3440.91 Mobile Safari/537.36 BiliApp/5320000',
         'X-Requested-With': 'tv.danmaku.bili'
       }
     default:
@@ -185,7 +185,6 @@ function Options(options?: _options): Promise<_options> {
       const userOptionBuffer = await FSreadFile(dirname + '/options/options.json')
       const userOption = await JSONparse<_options>(userOptionBuffer.toString())
       if (defaultOption === undefined || userOption === undefined) throw new TypeError('文件格式化失败')
-      defaultOption.server = Object.assign({}, defaultOption.server, userOption.server)
       defaultOption.config = Object.assign({}, defaultOption.config, userOption.config)
       for (const uid in userOption.user)
         defaultOption.user[uid] = Object.assign({}, defaultOption.newUserData, userOption.user[uid])

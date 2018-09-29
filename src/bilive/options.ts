@@ -52,7 +52,6 @@ class Options extends EventEmitter {
           break
         // 获取uid
         case 'getAllUID': {
-          _user.forEach(user => user.getUserInfo())
           const data = Object.keys(_options.user)
           event.sender.send('MTOR', { cmd, data })
         }
@@ -153,7 +152,7 @@ interface message {
   cmd: string
   msg?: string
   uid?: string
-  data?: config | optionsInfo | string[] | userData
+  data?: config | string[] | userData
   captcha?: string
 }
 export default Options

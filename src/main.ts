@@ -17,6 +17,9 @@ const createWindow = () => {
     show: false
   })
 
+  mainWindow.setResizable(false)
+  mainWindow.setMaximizable(false)
+
   //mainWindow.openDevTools()
 
   mainWindow.loadURL(`file://${__dirname}/index.html`)

@@ -31,10 +31,11 @@ class BiLive {
       const status = await user.Start()
       if (status !== undefined) user.Stop()
     }
+    _user.forEach(user => user.getUserInfo()) // 启动时更新
     _user.forEach(user => user.daily())
-    _user.forEach(user => user.getGuard())//先看看上船情况，万一漏了呢（
+    _user.forEach(user => user.getGuard()) //先看看上船情况，万一漏了呢（
     _user.forEach(user => user.userData.ban = false)
-    this.loop = setInterval(() => this._loop(), 55 * 1000)
+    this.loop = setInterval(() => this._loop(), 59 * 1000)
     new Options().Start()
     this.Listener()
   }
@@ -50,6 +51,7 @@ class BiLive {
     const cstString = cst.toUTCString().substr(17, 5) // 'HH:mm'
     const cstHour = cst.getUTCHours()
     const cstMin = cst.getUTCMinutes()
+    if (cstMin % 2 === 0) _user.forEach(user => user.getUserInfo()) // 2 min check
     if (cstString === '00:10') _user.forEach(user => user.nextDay())// 每天00:10刷新任务
     if (cstString === '13:58') _user.forEach(user => user.sendGift())// 每天13:58再次自动送礼, 因为一般活动14:00结束
     if (cstString === '02:28') _user.forEach(user => user.getGuard())// 每天02:28检查上船
@@ -88,6 +90,7 @@ class BiLive {
     _user.forEach(user => {
       if (!this._raffle && user.userData.raffleLimit) return
       if (user.captchaJPEG !== '' || !user.userData.raffle) return
+      if (new Date().getTime() - user.userData.banTime < 5 * 60 * 60 * 1000) return // 5h ban determine
       if (Math.random() < _options.config.droprate / 100 && user.userData.raffleLimit) return tools.Log(user.nickname, "随机丢弃", raffleMSG.title, raffleMSG.id)
       const raffleOptions: raffleOptions = { ...raffleMSG, raffleId: raffleMSG.id, user }
       return new Raffle(raffleOptions).Start()
