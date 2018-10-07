@@ -479,6 +479,21 @@ interface shareCallback {
   message: string
 }
 /**
+ * 指定送礼参数
+ *
+ * @interface sendGiftItem
+ */
+interface sendGiftItem {
+  id: number
+  uid: number
+  bagId: number
+  name: string
+  price: number
+  num: number
+  sendNum: number
+  sendRoom: number
+}
+/**
  * 每日包裹
  *
  * @interface getBagGift

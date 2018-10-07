@@ -52,6 +52,7 @@ class Options extends EventEmitter {
           break
         // 获取uid
         case 'getAllUID': {
+          _user.forEach(user => user.getUserInfo())
           const data = Object.keys(_options.user)
           event.sender.send('MTOR', { cmd, data })
         }
@@ -137,6 +138,14 @@ class Options extends EventEmitter {
           event.sender.send('MTOR', { cmd: 'alertMsg', data: `新建用户成功` })
         }
           break
+        // 送出指定礼物
+        case 'sendGiftToRoom': {
+          const uid = arg.uid
+          const giftItem = <sendGiftItem>arg.data
+          const user = new User(uid, _options.user[uid])
+          user.sendGiftRoom(giftItem)
+        }
+          break
         // 未知命令
         default:
           event.sender.send('MTOR', { cmd: 'errorMsg', data: `未知命令` })
@@ -150,10 +159,10 @@ class Options extends EventEmitter {
 // ipc消息
 interface message {
   cmd: string
-  msg?: string
-  uid?: string
-  data?: config | string[] | userData
-  captcha?: string
+  msg: string
+  uid: string
+  data: config | string[] | userData | sendGiftItem
+  captcha: string
 }
 export default Options
 export { message }

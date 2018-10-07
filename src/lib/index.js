@@ -1,6 +1,4 @@
-const {
-  ipcRenderer
-} = require('electron');
+const { ipcRenderer } = require('electron');
 
 ipcRenderer.on('MTOR', (event, arg) => {
   switch (arg.cmd) {
@@ -22,7 +20,6 @@ ipcRenderer.on('MTOR', (event, arg) => {
       }
     case 'getAllUID':
       { // 全体userData的UID数组
-        setTimeout(function() {}, 10 * 1000); // 留出时间让userData更新至json
         arg.data.forEach((uid) => {
           ipcRenderer.send('RTOM', {
             cmd: 'getUserData',
@@ -71,17 +68,20 @@ ipcRenderer.on('MTOR', (event, arg) => {
       }
     case 'captcha':
       { // captcha
-        showDialog('验证码', `${arg.uid}\n\n${arg.captcha}`)
+        showDialog('验证码', `${arg.uid}\n\n${arg.captcha}`, 'close')
+        break;
+      }
+    case 'sendGiftReturn':
+      { // 送礼回显
+        showSnackBar(`送礼${arg.success ? '成功' : '失败'}`);
+        queryCache('getAllUID');
+        app.sendDialog.show = false
         break;
       }
     default:
-      break;
+      return;
   }
 });
-
-function queryCache(head) { // Triggers ipc sending event.
-  ipcRenderer.send('RTOM', generateCommu(head));
-}
 
 function generateCommu(head) { // Generates Commu body
   switch (head) {
@@ -102,12 +102,16 @@ function generateCommu(head) { // Generates Commu body
   }
 }
 
+function queryCache(head) { // Triggers ipc sending event.
+  ipcRenderer.send('RTOM', generateCommu(head));
+}
+
 function showSnackBar(msg) { // SnackBar
   app.snackbar.text = msg;
   app.snackbar.show = true;
 }
 
-function showDialog(title, text, shutOption) { // Dialog
+function showDialog(title, text, shutOption) { // Normal Dialog
   app.dialog.title = title;
   app.dialog.text = text;
   app.dialog.shutOption = shutOption;
@@ -119,28 +123,34 @@ let app = new Vue({
   data: () => ({
     loading: true,
     drawer: null,
-    subpages: [{
-      icon: 'home',
-      text: '状态'
-    }, {
-      icon: 'notes',
-      text: '日志'
-    }],
+    subpages: [
+      {
+        icon: 'home',
+        text: '状态'
+      },
+      {
+        icon: 'notes',
+        text: '日志'
+      }
+    ],
     pageTitle: "状态",
     users: [],
     search: "",
-    headers: [{
-      text: "时间",
-      description: "该条日志的时间",
-      align: "left",
-      value: "time"
-    }, {
-      text: "内容",
-      description: "日志原文",
-      align: "right",
-      sortable: false,
-      value: "content"
-    }],
+    headers: [
+      {
+        text: "时间",
+        description: "该条日志的时间",
+        align: "left",
+        value: "time"
+      },
+      {
+        text: "内容",
+        description: "日志原文",
+        align: "right",
+        sortable: false,
+        value: "content"
+      }
+    ],
     logData: [],
     config: {
       defaultUserID: 0,
@@ -161,6 +171,19 @@ let app = new Vue({
       timeout: 2500,
       text: null
     },
+    sendDialog: {
+      show: false,
+      uid: null,
+      giftItem: {
+        id: null,
+        bagId: null,
+        name: null,
+        price: null,
+        num: null,
+        sendNum: null,
+        sendRoom: null
+      }
+    },
     dialog: {
       show: false,
       title: null,
@@ -170,6 +193,76 @@ let app = new Vue({
     topButtonShow: false
   }),
   methods: {
+    medalColor: function(level) { // 勋章颜色动态class，觉得应该用computed
+      if (level === 0)
+        return 'lv0'
+      else if (level > 0 && level < 5)
+        return 'lv1'
+      else if (level >= 5 && level < 9)
+        return 'lv5'
+      else if (level >= 9 && level < 13)
+        return 'lv9'
+      else if (level >= 13 && level < 17)
+        return 'lv13'
+      else if (level >= 17 && level <= 20)
+        return 'lv17'
+    },
+    delUserData: function(uid) { // 发送delUserData事件
+      for (let i = 0; i < this.users.length; i++) {
+        if (this.users[i].uid === uid)
+          this.users.splice(i, 1);
+      }
+      ipcRenderer.send('RTOM', {
+        cmd: 'delUserData',
+        uid: uid
+      });
+    },
+    newUserData: function() { // 发送newUserData事件
+      ipcRenderer.send('RTOM', {
+        cmd: 'newUserData'
+      });
+    },
+    onScroll: function() { // 监听窗体滚动
+      let offsetTop = window.pageYOffset;
+      if (offsetTop > 250) {
+        this.topButtonShow = true;
+      } else {
+        this.topButtonShow = false;
+      }
+    },
+    sendGift: function(uid, giftItem) { // 生成送礼Dialog
+      this.sendDialog.uid = uid;
+      this.sendDialog.giftItem = giftItem;
+      this.sendDialog.show = true;
+    },
+    sendGiftRoom: function(uid, sendItem) {
+      if (sendItem.sendRoom === 0) {
+        showSnackBar(`房间号不能为0`);
+        return;
+      }
+      if (sendItem.sendNum > sendItem.num) {
+        showSnackBar(`送出礼物不能超出包裹中数量`);
+        return;
+      }
+      ipcRenderer.send('RTOM', {
+        cmd: 'sendGiftToRoom',
+        uid: uid,
+        data: sendItem
+      });
+    },
+    setConfig: function() { // 发送setConfig事件
+      ipcRenderer.send('RTOM', {
+        cmd: 'setConfig',
+        data: app.config
+      });
+    },
+    setUserData: function(user) { // 发送setUserData事件
+      ipcRenderer.send('RTOM', {
+        cmd: 'setUserData',
+        uid: user.uid,
+        data: user
+      });
+    },
     showAbout: function() { // 显示About
       let msg = [`Bilive_Electron 1.0.1(b20180930)`,
         `基于bilive_client的Electron桌面应用`,
@@ -208,20 +301,6 @@ let app = new Vue({
           }
       }
     },
-    medalColor: function(level) { // 勋章颜色动态class，觉得应该用computed
-      if (level === 0)
-        return 'lv0'
-      else if (level > 0 && level < 5)
-        return 'lv1'
-      else if (level >= 5 && level < 9)
-        return 'lv5'
-      else if (level >= 9 && level < 13)
-        return 'lv9'
-      else if (level >= 13 && level < 17)
-        return 'lv13'
-      else if (level >= 17 && level <= 20)
-        return 'lv17'
-    },
     vipStatus: function(vip, svip) { // 老爷状态动态class
       if (vip === 0 && svip === 0)
         return ['vip-gray', '并不是老爷哦']
@@ -230,41 +309,16 @@ let app = new Vue({
       else
         return ['vip-year-color', '是高贵的年费老爷哦']
     },
-    setConfig: function() { // 发送setConfig事件
-      ipcRenderer.send('RTOM', {
-        cmd: 'setConfig',
-        data: app.config
-      });
-    },
-    setUserData: function(user) { // 发送setUserData事件
-      ipcRenderer.send('RTOM', {
-        cmd: 'setUserData',
-        uid: user.uid,
-        data: user
-      });
-    },
-    delUserData: function(uid) { // 发送delUserData事件
-      for (let i = 0; i < this.users.length; i++) {
-        if (this.users[i].uid === uid)
-          this.users.splice(i, 1);
-      }
-      ipcRenderer.send('RTOM', {
-        cmd: 'delUserData',
-        uid: uid
-      });
-    },
-    newUserData: function() { // 发送newUserData事件
-      ipcRenderer.send('RTOM', {
-        cmd: 'newUserData'
-      });
-    },
-    onScroll: function() { // 监听窗体滚动
-      let offsetTop = window.pageYOffset;
-      if (offsetTop > 250) {
-        this.topButtonShow = true;
-      } else {
-        this.topButtonShow = false;
-      }
+  },
+  watch: {
+    sendDialog: {
+      handler: function (val, oldVal) {
+        if (val.show === false) {
+          this.sendDialog.giftItem.sendNum = 0;
+          this.sendDialog.giftItem.sendRoom = 0;
+        }
+      },
+      deep: true
     }
   }
 });

@@ -1,7 +1,7 @@
 {
   "name": "bilive_electron",
   "productName": "Bilive_Electron",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Bilibili live tool, written with Electron and Vue.JS.",
   "main": "build/main.js",
   "scripts": {
@@ -31,7 +31,10 @@
       },
       "electronPackagerConfig": {
         "packageManager": "npm",
-        "icon": "src/lib/icon.ico"
+        "icon": "src/lib/icon.ico",
+        "ignore": [
+          "options.json"
+        ]
       },
       "electronWinstallerConfig": {
         "name": "Bilive_Electron"

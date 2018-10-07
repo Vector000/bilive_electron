@@ -217,6 +217,39 @@ class User extends Online {
     else tools.Log(this.nickname, '银瓜子兑换硬币', '兑换失败', silver2coin.body)
   }
   /**
+   * 指定送礼
+   *
+   * @memberof User
+   */
+  public async sendGiftRoom(sendItem: sendGiftItem) {
+    const roomInfo = await tools.XHR<roomInfo>({
+      uri: `${apiLiveOrigin}/AppRoom/index?${AppClient.signQueryBase(`room_id=${sendItem.sendRoom}`)}`,
+      json: true
+    }, 'Android')
+    if (roomInfo === undefined || roomInfo.response.statusCode !== 200) return
+    if (roomInfo.body.code === 0) {
+      const mid = roomInfo.body.data.mid
+      const sendBag = await tools.XHR<sendBag>({
+        method: 'POST',
+        uri: `${apiLiveOrigin}/gift/v2/live/bag_send`,
+        body: AppClient.signQueryBase(`bag_id=${sendItem.bagId}&biz_code=live&biz_id=${sendItem.sendRoom}&gift_id=${sendItem.id}&gift_num=${sendItem.sendNum}&ruid=${mid}&uid=${this.userData.biliUID}&rnd=${AppClient.RND}&${this.tokenQuery}`),
+        json: true,
+        headers: this.headers
+      }, 'Android')
+      let allContents = webContents.getAllWebContents()
+      if (sendBag !== undefined && sendBag.response.statusCode === 200 && sendBag.body.code === 0) {
+        allContents.forEach((windowContent) => {
+          windowContent.send('MTOR', { cmd: 'sendGiftReturn', success: true })
+        })
+      }
+      else {
+        allContents.forEach((windowContent) => {
+          windowContent.send('MTOR', { cmd: 'sendGiftReturn', success: false })
+        })
+      }
+    }
+  }
+  /**
    * 自动送礼
    *
    * @memberof User
@@ -457,7 +490,8 @@ class User extends Online {
           _options.giftID.forEach((gift) => {
             if (giftData.gift_id === gift.id) {
               bagItem.push({
-                id: gift.id,
+                id: giftData.gift_id,
+                bagId: giftData.id,
                 name: gift.name,
                 price: gift.price,
                 img: gift.img,

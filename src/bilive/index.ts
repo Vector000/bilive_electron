@@ -51,7 +51,6 @@ class BiLive {
     const cstString = cst.toUTCString().substr(17, 5) // 'HH:mm'
     const cstHour = cst.getUTCHours()
     const cstMin = cst.getUTCMinutes()
-    if (cstMin % 2 === 0) _user.forEach(user => user.getUserInfo()) // 2 min check
     if (cstString === '00:10') _user.forEach(user => user.nextDay())// 每天00:10刷新任务
     if (cstString === '13:58') _user.forEach(user => user.sendGift())// 每天13:58再次自动送礼, 因为一般活动14:00结束
     if (cstString === '02:28') _user.forEach(user => user.getGuard())// 每天02:28检查上船
