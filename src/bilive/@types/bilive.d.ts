@@ -25,7 +25,7 @@ interface userCollection {
   [index: string]: userData
 }
 interface userData {
-  [index: string]: string | boolean | number | []
+  [index: string]: string | boolean | number | any[]
   nickname: string
   userName: string
   passWord: string
@@ -69,6 +69,9 @@ interface userData {
   sendGiftRoom: number
   autoSend: boolean
   signGroup: boolean
+  main: boolean
+  mainCoin: boolean
+  mainCoinGroup: number[]
 }
 interface giftItem {
   id: number
@@ -898,4 +901,112 @@ interface giftConfigData {
 interface giftConfigDataMap {
   num: number
   text: string
+}
+/**
+ * 主站关注
+ *
+ * @interface attentions
+ */
+interface attentions {
+  code: number
+  data: attentionsData
+  message: string
+  ttl: number
+}
+interface attentionsData {
+  list: attentionsDataList[]
+  reversion: number
+  total: number
+}
+interface attentionsDataList {
+  mid: number
+  mtime: number
+  uname: string
+}
+/**
+ * 主站视频
+ *
+ * @interface getSummitVideo
+ */
+interface getSummitVideo {
+  status: boolean
+  data: getSummitVideoData
+}
+interface getSummitVideoData {
+  count: number
+  pages: number
+  vlist: getSummitVideoDataList[]
+}
+interface getSummitVideoDataList {
+  aid: number
+  created: number
+  mid: number
+  title: string
+}
+/**
+ * 主站cid
+ *
+ * @interface getCid
+ */
+interface getCid {
+  data: cid[]
+}
+interface cid {
+  cid: number
+}
+/**
+ * 主站分享返回
+ *
+ * @interface shareAV
+ */
+interface shareAV {
+  code: number
+}
+/**
+ * 主站心跳
+ *
+ * @interface avHeart
+ */
+interface avHeart {
+  code: number
+}
+/**
+ * 主站心跳
+ *
+ * @interface avHeart
+ */
+interface avHeart {
+  code: number
+}
+/**
+ * 主站信息
+ *
+ * @interface mainUserInfo
+ */
+interface mainUserInfo {
+  code: number
+  data: mainUserInfoData
+}
+interface mainUserInfoData {
+  coins: number
+}
+/**
+ * 主站任务
+ *
+ * @interface mainReward
+ */
+interface mainReward {
+  code: number
+  data: mainRewardData
+}
+interface mainRewardData {
+  coins_av: number
+}
+/**
+ * 投币回调
+ *
+ * @interface coinAdd
+ */
+interface coinAdd {
+  code: number
 }

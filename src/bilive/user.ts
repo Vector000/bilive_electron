@@ -1,7 +1,7 @@
 import tools from './lib/tools'
 import Online from './online'
 import AppClient from './lib/app_client'
-import { liveOrigin, apiVCOrigin, apiLiveOrigin, _options, _user } from './index'
+import { liveOrigin, apiOrigin, apiVCOrigin, apiLiveOrigin, _options, _user } from './index'
 import { webContents } from 'electron'
 /**
  * Creates an instance of User.
@@ -81,6 +81,7 @@ class User extends Online {
     this.silver2coin()
     this.sendGift()
     this.signGroup()
+    this.bilibili()
   }
   /**
    * 每日签到
@@ -531,7 +532,7 @@ class User extends Online {
        if (guardInfo.Guard === 'Governor') continue
        if (guardInfo.Guard === 'Praefect') guardType = '提督'
        if (guardInfo.Guard === 'Captain') guardType = '舰长'
-       await tools.XHR({//_WebEntry 虽然好像没什么用还是写进来
+       await tools.XHR({ // _WebEntry 虽然好像没什么用还是写进来
          method: 'POST',
          uri: `${apiLiveOrigin}/room/v1/Room/room_entry_action`,
          jar: this.jar,
@@ -564,5 +565,123 @@ class User extends Online {
      }
      tools.Log(this.nickname, `已完成提督、舰长亲密度检查`)
    }
+   /**
+    * 主站
+    *
+    * @memberof User
+    */
+    public async bilibili() {
+      if (!this.userData.main) return
+      let ts = new Date().getTime()
+      let avs: number[] = []
+      let mids: number[] = []
+      const attentions = await tools.XHR<attentions>({
+        uri: `${apiOrigin}/x/relation/followings?vmid=${this.biliUID}&ps=50&order=desc`,
+        jar: this.jar,
+        json: true,
+        headers: { "Host": "api.bilibili.com" }
+      })
+      if (attentions !== undefined && attentions.body.data.list.length > 0) {
+        attentions.body.data.list.forEach(item => mids.push(item.mid))
+      }
+      if (this.userData.mainCoin && this.userData.mainCoinGroup.length > 0) mids = this.userData.mainCoinGroup
+      let order = 0
+      mids.forEach(async (mid) => {
+        const getSummitVideo = await tools.XHR<getSummitVideo>({
+          uri: `https://space.bilibili.com/ajax/member/getSubmitVideos?mid=${mid}&pagesize=100&tid=0`,
+          json: true
+        })
+        if (getSummitVideo !== undefined && getSummitVideo.body.data.vlist.length > 0) {
+          getSummitVideo.body.data.vlist.forEach(item => {avs.push(item.aid)})
+        }
+        await tools.Sleep(2000)
+        order++
+        if (order === mids.length) {
+          let aid = avs[Math.floor(Math.random()*(avs.length))]
+          let cid = await (async function(aid) {
+            const getCid = await tools.XHR<any>({
+              uri: `https://www.bilibili.com/widget/getPageList?aid=${aid}`,
+              json: true
+            })
+            if (getCid === undefined) return
+            let cids = <getCid>({
+              data: []
+            })
+            cids.data = <cid[]>getCid.body
+            return cids.data[0].cid
+          }(aid))
+          const shareAV = await tools.XHR<shareAV>({
+            method: 'POST',
+            uri: `https://app.bilibili.com/x/v2/view/share/add`,
+            body: AppClient.signQuery(`access_key=${this.accessToken}&aid=${aid}&appkey=${AppClient.appKey}&build=${AppClient.build}&from=7&mobi_app=android&platform=android&ts=${ts}`),
+            jar: this.jar,
+            json: true,
+            headers: { "Host": "app.bilibili.com" }
+          }, 'Android')
+          if (shareAV !== undefined && shareAV.body.code === 0) tools.Log(this.nickname, `已完成主站分享，经验+5`)
+          const avHeart = await tools.XHR<avHeart>({
+            method: 'POST',
+            uri: `${apiOrigin}/x/report/web/heartbeat`,
+            body: `aid=${aid}&cid=${cid}&mid=${this.biliUID}&csrf=${tools.getCookie(this.jar, 'bili_jct')}&played_time=3&realtime=3&start_ts=${ts}&type=3&dt=2&play_type=1`,
+            jar: this.jar,
+            json: true,
+            headers: {
+              "Host": "api.bilibili.com",
+              "Referer": `https://www.bilibili.com/video/av${aid}`
+            }
+          })
+          if (avHeart !== undefined && avHeart.body.code === 0) tools.Log(this.nickname, `已完成主站观看，经验+5`)
+          if (!this.userData.mainCoin) return
+          const mainUserInfo = await tools.XHR<mainUserInfo>({
+            uri: `https://account.bilibili.com/home/userInfo`,
+            jar: this.jar,
+            json: true,
+            headers: {
+              "Referer": `https://account.bilibili.com/account/home`,
+              "Host": `account.bilibili.com`,
+            }
+          })
+          if (mainUserInfo === undefined) return
+          let coins = mainUserInfo.body.data.coins
+          const mainReward = await tools.XHR<mainReward>({
+            uri: `https://account.bilibili.com/home/reward`,
+            jar: this.jar,
+            json: true,
+            headers: {
+              "Referer": `https://account.bilibili.com/account/home`,
+              "Host": `account.bilibili.com`,
+            }
+          })
+          if (mainReward === undefined) return
+          let coins_av = mainReward.body.data.coins_av
+          let order = 0
+          while (coins > 0 && coins_av < 50 && order < avs.length) {
+            let i = Math.floor(Math.random()*(avs.length))
+            let aid = avs[i]
+            const coinAdd = await tools.XHR<coinAdd>({
+              method: 'POST',
+              uri: `https://api.bilibili.com/x/web-interface/coin/add`,
+              body: `aid=${aid}&multiply=1&cross_domain=true&csrf=${tools.getCookie(this.jar, 'bili_jct')}`,
+              jar: this.jar,
+              json: true,
+              headers: {
+                "Referer": `https://www.bilibili.com/av${aid}`,
+                "Origin": "https://www.bilibili.com",
+                "Host": `api.bilibili.com`,
+              }
+            })
+            if (coinAdd === undefined || coinAdd.body.code === 34005) continue
+            if (coinAdd.body.code === 0) {
+              coins--
+              coins_av = coins_av + 10
+            }
+            order++
+            avs.splice(i,1)
+            await tools.Sleep(3000)
+          }
+          tools.Log(this.nickname, `已完成主站投币，经验+${coins_av}`)
+        }
+      })
+    }
 }
 export default User

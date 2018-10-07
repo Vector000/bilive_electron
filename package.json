@@ -1,7 +1,7 @@
 {
   "name": "bilive_electron",
   "productName": "Bilive_Electron",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Bilibili live tool, written with Electron and Vue.JS.",
   "main": "build/main.js",
   "scripts": {

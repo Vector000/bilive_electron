@@ -336,6 +336,20 @@
                         <span>要自动送出礼物的房间号，0为禁用</span>
                       </v-tooltip>
                     </v-flex>
+                    <v-flex class="userSettingItem" xs6>
+                      <v-switch color="#fb7299" v-model="user.main" label="主站"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6 v-if="user.main">
+                      <v-switch color="#fb7299" v-model="user.mainCoin" label="投币"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs12 v-if="user.mainCoin">
+                      <v-tooltip bottom="bottom">
+                        <span slot="activator">
+                          <v-combobox color="#fb7299" :value="user.mainCoinGroup" @input="user.mainCoinGroup=[];arguments[0].forEach((data) => {user.mainCoinGroup.push(parseInt(data))})" multiple="multiple" chips="chips" label="投币up主" type="number"></v-combobox>
+                        </span>
+                        <span>指定投币up主，留空则对前50关注up随机投币</span>
+                      </v-tooltip>
+                    </v-flex>
                   </v-layout>
                   <v-divider></v-divider>
                   <v-card-actions>

@@ -1,9 +1,12 @@
 # Bilive-Electron
-从[bilive_client](https://github.com/vector000/bilive_client)项目(我自己的分支，原作者的主分支在此:[主分支](https://github.com/lzghzr/bilive_client))衍生而来的Electron应用。使用了Vue.JS和Vuetify.JS进行前端数据处理
+从[bilive_client](https://github.com/vector000/bilive_client)项目(我自己的分支，原作者的主分支在此:[主分支](https://github.com/lzghzr/bilive_client))衍生而来的Electron应用。应用Vue.JS进行前端数据处理，Vuetify作为前端UI框架
 
 ## Feature
 主要基本与原项目功能一致，本项目采用了Vue+Vuetify，运行日志查找非常方便。而且Vuetify嘛，观感还是不错滴←◡←  
-不会用命令行的童鞋可以直接玩儿release
+不会用命令行的童鞋可以直接玩儿release  
+增添的功能：
+* 快速指定直播间送礼
+* 主站相关功能
 
 ## Releases
 Release可以直接下载使用，目前没有做linux包的打算，有兴趣的可以自行编译
@@ -19,7 +22,7 @@ Release可以直接下载使用，目前没有做linux包的打算，有兴趣�
 7. `./Bilive_Electron.exe` 在命令行中运行，可直接看到node后端的console
 
 ## TO-DO(咕咕咕)
-* 在前端窗口实现指定直播间送礼
+* ~~在前端窗口实现指定直播间送礼~~(已实现)
 * 可随意指定房间、登录用户的可交互弹幕姬(long-term)
 
 ## Known Issue

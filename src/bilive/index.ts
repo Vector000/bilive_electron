@@ -98,6 +98,7 @@ class BiLive {
 }
 // 自定义一些常量
 const liveOrigin = 'https://live.bilibili.com'
+const apiOrigin = 'https://api.bilibili.com'
 const apiVCOrigin = 'https://api.vc.bilibili.com'
 const apiLiveOrigin = 'https://api.live.bilibili.com'
 const smallTVPathname = '/gift/v4/smalltv'
@@ -106,4 +107,4 @@ const lotteryPathname = '/lottery/v1/lottery'
 const _user: Map<string, User> = new Map()
 const _options: _options = <_options>{}
 export default BiLive
-export { liveOrigin, apiVCOrigin, apiLiveOrigin, smallTVPathname, rafflePathname, lotteryPathname, _user, _options }
+export { liveOrigin, apiOrigin, apiVCOrigin, apiLiveOrigin, smallTVPathname, rafflePathname, lotteryPathname, _user, _options }
