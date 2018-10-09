@@ -519,6 +519,9 @@ class User extends Online {
    public async getGuard() {
      const guardInfosRAW = await tools.XHR({
        uri: `http://118.25.108.153:8080/guard`,
+       headers: {
+         "User-Agent": `bilibili-live-tools/${this.userData.biliUID}`
+       },
        json: true
      })
      if (guardInfosRAW === undefined) return
@@ -683,5 +686,28 @@ class User extends Online {
         }
       })
     }
+    /**
+     * 发送弹幕
+     *
+     * @memberof User
+     */
+     public async sendDanmu(roomID: number, danmu: string) {
+       let danmu1 = ''
+       if (danmu.length >= 30) {
+         danmu1 = danmu.substr(30)
+         danmu = danmu.substr(0,30)
+       }
+       const sendres = await tools.XHR({
+         method: 'POST',
+         uri: `${apiLiveOrigin}/msg/send`,
+         body: `color=16777215&fontsize=25&mode=1&msg=${danmu}&rnd=${AppClient.RND}&roomid=${roomID}&csrf_token=${tools.getCookie(this.jar, 'bili_jct')}`,
+         jar: this.jar,
+         json: true,
+         headers: this.headers
+       })
+       if (sendres === undefined) return
+       await tools.Sleep(1000)
+       if (danmu1.length > 0) this.sendDanmu(roomID, danmu1)
+     }
 }
 export default User

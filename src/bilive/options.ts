@@ -2,8 +2,9 @@ import { randomBytes } from 'crypto'
 import { EventEmitter } from 'events'
 import tools from './lib/tools'
 import User from './user'
+import DMclient from './dm_client_re'
 import { _options, _user } from './index'
-import { ipcMain } from 'electron'
+import { ipcMain, webContents } from 'electron'
 
 /**
  * 程序设置
@@ -16,6 +17,15 @@ class Options extends EventEmitter {
   constructor() {
     super()
   }
+
+  /**
+   * 用于接收弹幕消息
+   *
+   * @private
+   * @type {Map<number, DMclient>}
+   * @memberof Listener
+   */
+  private _DMclient: Map<number, DMclient> = new Map()
 
   public Start() {
     this._ipcListener()
@@ -146,6 +156,50 @@ class Options extends EventEmitter {
           user.sendGiftRoom(giftItem)
         }
           break
+        // 连接指定弹幕服务器
+        case 'danmuServerConnect': {
+          const userID = arg.UID
+          const roomID = tools.getLongRoomID(arg.roomid)
+          const newDMclient = new DMclient({ roomID, userID })
+          newDMclient
+            .on('DANMU_MSG', dataJson => this._DanmuHandler(dataJson))
+            .Connect()
+          this._DMclient.set(roomID, newDMclient)
+          event.sender.send('MTOR', {
+            cmd: 'danmuServerReturn',
+            data: { connect: true }
+          })
+        }
+          break
+        // 断开弹幕服务器
+        case 'danmuServerDisconnect': {
+          const roomID = arg.roomid
+          const newDMclient = <DMclient>this._DMclient.get(roomID)
+          newDMclient.removeAllListeners().Close()
+          this._DMclient.delete(roomID)
+          event.sender.send('MTOR', {
+            cmd: 'danmuServerReturn',
+            data: { connect: false }
+          })
+        }
+          break
+        // 发送指定弹幕
+        case 'sendMessage': {
+          const uid = arg.UID
+          const roomID = arg.roomid
+          const msg = arg.msg
+          let ok = 0
+          _user.forEach(user => {
+            if (user.userData.biliUID !== uid) return
+            else {
+              user.sendDanmu(roomID, msg)
+              ok++
+              return
+            }
+          })
+          if (ok === 0) event.sender.send('MTOR', { cmd: 'alertMsg', data: `找不到UID，请检查用户列表` })
+        }
+          break
         // 未知命令
         default:
           event.sender.send('MTOR', { cmd: 'errorMsg', data: `未知命令` })
@@ -154,6 +208,37 @@ class Options extends EventEmitter {
     })
   }
 
+  private async _DanmuHandler(dataJson: DANMU_MSG) {
+    const danmu = dataJson.info[1]
+    const uid = dataJson.info[2][0]
+    const nickname = dataJson.info[2][1]
+    const vip = dataJson.info[2][3]
+    const svip = dataJson.info[2][4]
+    const medalLv = dataJson.info[3][0]
+    const medal = dataJson.info[3][1]
+    const ul = dataJson.info[4][0]
+    const rank = dataJson.info[4][3]
+    let face: string = ""
+    const getInfo = await tools.XHR<getInfo>({
+      method: 'POST',
+      uri: `http://space.bilibili.com/ajax/member/GetInfo`,
+      body: `mid=${uid}&csrf=""`,
+      json: true,
+      headers: {
+        "Host": "space.bilibili.com",
+        "Origin": "http://space.bilibili.com",
+        "Referer": `http://space.bilibili.com/${uid}`
+      }
+    })
+    if (getInfo !== undefined) face = getInfo.body.data.face
+    let allContents = webContents.getAllWebContents()
+    allContents.forEach((windowContent) => {
+      windowContent.send('MTOR', {
+        cmd: 'danmuServerReturn',
+        data: { danmu, uid, nickname, vip, svip, medalLv, medal, ul, rank, face }
+      })
+    })
+  }
 }
 
 // ipc消息
@@ -161,6 +246,8 @@ interface message {
   cmd: string
   msg: string
   uid: string
+  UID: number
+  roomid: number
   data: config | string[] | userData | sendGiftItem
   captcha: string
 }

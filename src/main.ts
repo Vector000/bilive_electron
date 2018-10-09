@@ -12,8 +12,8 @@ const createWindow = () => {
   Menu.setApplicationMenu(null)
 
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 900,
+    height: 700,
     show: false
   })
 

@@ -2,8 +2,8 @@ const { ipcRenderer } = require('electron');
 
 ipcRenderer.on('MTOR', (event, arg) => {
   switch (arg.cmd) {
-    case 'log':
-      { // 日志事件
+    case 'log': // 日志事件
+      {
         let date = new Date().toString().substr(4, 20);
         app.logData.push({
           time: date,
@@ -13,13 +13,13 @@ ipcRenderer.on('MTOR', (event, arg) => {
           app.logData.shift();
         break;
       }
-    case 'getConfig':
-      { // 全局属性
+    case 'getConfig': // 全局属性
+      {
         app.config = arg.data;
         break;
       }
-    case 'getAllUID':
-      { // 全体userData的UID数组
+    case 'getAllUID': // 全体userData的UID数组
+      {
         arg.data.forEach((uid) => {
           ipcRenderer.send('RTOM', {
             cmd: 'getUserData',
@@ -28,8 +28,8 @@ ipcRenderer.on('MTOR', (event, arg) => {
         });
         break;
       }
-    case 'getUserData':
-      { // 单个userData
+    case 'getUserData': // 单个userData
+      {
         let tmp = arg.data;
         tmp["uid"] = arg.uid;
         tmp["showItems"] = false;
@@ -47,8 +47,8 @@ ipcRenderer.on('MTOR', (event, arg) => {
         }
         break;
       }
-    case 'newUserData':
-      { // 新user添加
+    case 'newUserData': // 新user添加
+      {
         let tmp = arg.data;
         tmp["uid"] = arg.uid;
         tmp["showItems"] = false;
@@ -56,26 +56,57 @@ ipcRenderer.on('MTOR', (event, arg) => {
         app.users.push(tmp);
         break;
       }
-    case 'errorMsg':
-      { // 错误提示
+    case 'errorMsg': // 错误提示
+      {
         showSnackBar(arg.data);
         break;
       }
-    case 'alertMsg':
-      { // alert
+    case 'alertMsg': // alert
+      {
         showSnackBar(arg.data);
         break;
       }
-    case 'captcha':
-      { // captcha
+    case 'captcha': // captcha
+      {
         showDialog('验证码', `${arg.uid}\n\n${arg.captcha}`, 'close')
         break;
       }
-    case 'sendGiftReturn':
-      { // 送礼回显
+    case 'sendGiftReturn': // 送礼回显
+      {
         showSnackBar(`送礼${arg.success ? '成功' : '失败'}`);
         queryCache('getAllUID');
         app.sendDialog.show = false
+        break;
+      }
+    case 'danmuServerReturn': // 弹幕服务器连接回调
+      {
+        if (arg.data.connect === true) {
+          showSnackBar(`连接弹幕服务器成功`);
+          app.danmuServer.connected = true;
+          return;
+        }
+        if (arg.data.connect === false) {
+          showSnackBar(`断开弹幕服务器成功`);
+          app.danmuServer.connected = false;
+          return;
+        }
+        if (arg.data.danmu !== undefined) {
+          if (app.danmuServer.danmuItem.length > 100) app.danmuServer.danmuItem.shift()
+          app.danmuServer.danmuItem.push({
+            user: {
+              nickname: arg.data.nickname,
+              uid: arg.data.uid,
+              vip: arg.data.vip,
+              svip: arg.data.svip,
+              medalLv: arg.data.medalLv,
+              medal: arg.data.medal,
+              ul: arg.data.ul,
+              rank: arg.data.rank,
+              face: arg.data.face
+            },
+            danmu: arg.data.danmu
+          });
+        }
         break;
       }
     default:
@@ -131,6 +162,10 @@ let app = new Vue({
       {
         icon: 'notes',
         text: '日志'
+      },
+      {
+        icon: 'computer',
+        text: '弹幕'
       }
     ],
     pageTitle: "状态",
@@ -152,6 +187,13 @@ let app = new Vue({
       }
     ],
     logData: [],
+    danmuServer: {
+      uid: 0,
+      roomid: 0,
+      connected: false,
+      danmuItem: [],
+      sendMsg: null
+    },
     config: {
       defaultUserID: 0,
       listenNumber: 3,
@@ -165,6 +207,7 @@ let app = new Vue({
     userInfoShow: true,
     searchPanelShow: false,
     logShow: false,
+    danmuShow: false,
     settingShow: false,
     snackbar: {
       show: false,
@@ -193,6 +236,46 @@ let app = new Vue({
     topButtonShow: false
   }),
   methods: {
+    bubbleClass: function(danmuUID, UID) { // 动态分配聊天气泡class
+      if (danmuUID === UID) return 'right';
+      else return 'left'
+    },
+    clearMessage: function() { // 清空弹幕输入框
+      this.danmuServer.sendMsg = null;
+      return;
+    },
+    danmuServerConnect: function() {
+      if (!(this.danmuServer.uid >= 0)) {
+        showSnackBar(`uid应为有效值`);
+        return;
+      }
+      if (!(this.danmuServer.roomid > 0)) {
+        showSnackBar(`房间号应为有效值`);
+        return;
+      }
+      ipcRenderer.send('RTOM', {
+        cmd: 'danmuServerConnect',
+        UID: this.danmuServer.uid,
+        roomid: this.danmuServer.roomid
+      });
+    },
+    danmuServerDisconnect: function() {
+      this.danmuServer.danmuItem.splice(0, this.danmuServer.danmuItem.length);
+      ipcRenderer.send('RTOM', {
+        cmd: 'danmuServerDisconnect',
+        roomid: this.danmuServer.roomid
+      });
+    },
+    delUserData: function(uid) { // 发送delUserData事件
+      for (let i = 0; i < this.users.length; i++) {
+        if (this.users[i].uid === uid)
+          this.users.splice(i, 1);
+      }
+      ipcRenderer.send('RTOM', {
+        cmd: 'delUserData',
+        uid: uid
+      });
+    },
     medalColor: function(level) { // 勋章颜色动态class，觉得应该用computed
       if (level === 0)
         return 'lv0'
@@ -206,16 +289,6 @@ let app = new Vue({
         return 'lv13'
       else if (level >= 17 && level <= 20)
         return 'lv17'
-    },
-    delUserData: function(uid) { // 发送delUserData事件
-      for (let i = 0; i < this.users.length; i++) {
-        if (this.users[i].uid === uid)
-          this.users.splice(i, 1);
-      }
-      ipcRenderer.send('RTOM', {
-        cmd: 'delUserData',
-        uid: uid
-      });
     },
     newUserData: function() { // 发送newUserData事件
       ipcRenderer.send('RTOM', {
@@ -235,7 +308,7 @@ let app = new Vue({
       this.sendDialog.giftItem = giftItem;
       this.sendDialog.show = true;
     },
-    sendGiftRoom: function(uid, sendItem) {
+    sendGiftRoom: function(uid, sendItem) { // 向指定房间送礼
       if (sendItem.sendRoom === 0) {
         showSnackBar(`房间号不能为0`);
         return;
@@ -249,6 +322,19 @@ let app = new Vue({
         uid: uid,
         data: sendItem
       });
+    }, //
+    sendMessage: function() { // 清除弹幕发送框
+      if (this.danmuServer.uid === 0) {
+        showSnackBar(`游客UID不能发送弹幕`);
+        return;
+      }
+      ipcRenderer.send('RTOM', {
+        cmd: 'sendMessage',
+        UID: this.danmuServer.uid,
+        roomid: this.danmuServer.roomid,
+        msg: this.danmuServer.sendMsg
+      });
+      this.clearMessage()
     },
     setConfig: function() { // 发送setConfig事件
       ipcRenderer.send('RTOM', {
@@ -271,35 +357,60 @@ let app = new Vue({
       showDialog('About', msg, 'Close');
     },
     showPages: function(key) { // v-show控制模块显示
+      this.pageTitle = key;
       switch (key) {
         case '状态':
           {
-            this.pageTitle = '状态';
             this.userInfoShow = true;
             this.logShow = false;
             this.searchPanelShow = false;
+            this.danmuShow = false;
             this.settingShow = false;
             break;
           }
         case '日志':
           {
-            this.pageTitle = '日志';
             this.userInfoShow = false;
             this.logShow = true;
             this.searchPanelShow = true;
+            this.danmuShow = false;
+            this.settingShow = false;
+            break;
+          }
+        case '弹幕':
+          {
+            this.userInfoShow = false;
+            this.logShow = false;
+            this.searchPanelShow = false;
+            this.danmuShow = true;
             this.settingShow = false;
             break;
           }
         case '设置':
           {
-            this.pageTitle = '设置';
             this.userInfoShow = false;
             this.logShow = false;
             this.searchPanelShow = false;
+            this.danmuShow = false;
             this.settingShow = true;
             break;
           }
+        default: break;
       }
+    },
+    ulColor: function(level) { // 勋章颜色动态class，觉得应该用computed
+      if (level >= 0 && level < 10)
+        return 'ul0'
+      else if (level >= 11 && level < 20)
+        return 'ul11'
+      else if (level >= 21 && level < 30)
+        return 'ul21'
+      else if (level >= 31 && level < 40)
+        return 'ul31'
+      else if (level >= 41 && level <= 50)
+        return 'ul41'
+      else if (level >= 51)
+        return 'ul51'
     },
     vipStatus: function(vip, svip) { // 老爷状态动态class
       if (vip === 0 && svip === 0)

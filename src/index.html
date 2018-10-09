@@ -205,6 +205,80 @@
           Your search for "{{ search }}" found no results.
         </v-alert>
       </v-data-table>
+      <v-card class="zhFont" id="danmuServer" v-show="danmuShow">
+        <v-container fluid grid-list-md>
+          <v-layout row wrap>
+            <v-flex xs3>
+              <v-tooltip bottom="bottom">
+                <span slot="activator">
+                  <v-text-field color="#fb7299" v-model.number="danmuServer.uid" v-bind:disabled="danmuServer.connected" label="登录UID" type="number" outline="outline" clearable></v-text-field>
+                </span>
+                <span>只有已在本工具登录的用户才能正常使用弹幕发送功能！</span>
+              </v-tooltip>
+              </v-flex>
+            <v-flex xs3>
+              <v-text-field color="#fb7299" v-model.number="danmuServer.roomid" v-bind:disabled="danmuServer.connected" label="房间号" type="number" outline="outline" clearable></v-text-field>
+            </v-flex>
+            <v-flex xs3>
+              <v-btn color="#fb7299" block v-bind:disabled="danmuServer.connected" @click="danmuServerConnect">登录Server</v-btn>
+            </v-flex>
+            <v-flex xs3>
+              <v-btn color="#fb7299" outline block v-bind:disabled="!danmuServer.connected" @click="danmuServerDisconnect">断开Server</v-btn>
+            </v-flex>
+          </v-layout>
+        </v-container>
+        <div class="danmuContainer">
+          <v-container fluid grid-list-md>
+            <v-layout row>
+              <v-flex xs12>
+                <v-list two-line>
+                  <v-list-tile v-for="item in danmuServer.danmuItem" avatar @click="">
+                    <v-tooltip bottom="bottom">
+                      <span slot="activator">
+                        <v-list-tile-avatar v-if="item.user.uid !== danmuServer.uid">
+                          <img :src="item.user.face">
+                        </v-list-tile-avatar>
+                      </span>
+                      <span>当前排名: {{ item.user.rank }}</span>
+                    </v-tooltip>
+                    <v-spacer v-if="item.user.uid === danmuServer.uid"></v-spacer>
+                    <div>
+                      <div class="danmuSender">
+                        <v-icon class="icon" :class="vipStatus(item.user.vip, item.user.svip)[0]"></v-icon>
+                        <span class="medal" :class="medalColor(item.user.medalLv)" v-if="item.user.medal.length !== 0">
+                          <span class="label">{{ item.user.medal }}</span><span class="level">{{ item.user.medalLv }}</span>
+                        </span>
+                        <span class="medal lv0" v-if="item.user.medal.length === 0">
+                          <span class="label">无勋章</span><span class="level">0</span>
+                        </span>
+                        <span class="userLv" :class="ulColor(item.user.ul)" v-if="item.user.medal.length >= 0">
+                          <span class="label">UL {{ item.user.ul }}</span>
+                        </span>
+                        <span>{{ item.user.nickname }}</span>
+                      </div>
+                      <div>
+                        <span class="danmuTime" v-if="item.user.uid === danmuServer.uid">{{ new Date().toString().substr(16,5) }}</span>
+                        <div class="bubble" :class="bubbleClass(item.user.uid, danmuServer.uid)">
+                          <div class="content">{{ item.danmu }}</div>
+                        </div>
+                        <span class="danmuTime" v-if="item.user.uid !== danmuServer.uid">{{ new Date().toString().substr(16,5) }}</span>
+                      </div>
+                    </div>
+                    <v-list-tile-avatar v-if="item.user.uid === danmuServer.uid">
+                      <img :src="item.user.face">
+                    </v-list-tile-avatar>
+                  </v-list-tile>
+                </v-list>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </div>
+        <v-container fluid grid-list-md>
+          <v-flex xs12>
+            <v-text-field color="#fb7299" v-model="danmuServer.sendMsg" :append-outer-icon="'send'" box clear-icon="close" clearable label="发送消息" type="text" @click:append-outer="sendMessage" @click:clear="clearMessage"></v-text-field>
+          </v-flex>
+        </v-container>
+      </v-card>
       <v-card class="zhFont" id="setting" v-show="settingShow">
         <v-container fluid="fluid" grid-list-md="grid-list-md">
           <v-layout row="row" wrap="wrap">

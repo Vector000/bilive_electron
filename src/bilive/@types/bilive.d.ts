@@ -93,6 +93,19 @@ interface message {
   title: string
   time: number
 }
+//option
+/**
+ * 获取头像
+ *
+ * @interface getInfo
+ */
+interface getInfo {
+  status: boolean
+  data: getInfoData
+}
+interface getInfoData {
+  face: string
+}
 // listener
 /**
  * 获取直播列表

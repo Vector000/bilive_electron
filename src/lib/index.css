@@ -152,10 +152,157 @@ html {
 }
 
 #logList {
-  margin-top: 60px;
+  margin-top: 50px;
   width: 90%;
   margin-left: auto;
   margin-right: auto;
+}
+
+#danmuServer {
+  margin-top: 60px;
+}
+
+#danmuServer .danmuContainer {
+  height: 360px;
+  overflow-y: auto;
+}
+
+.danmuSender {
+  font-size: 12px;
+  color: #666666;
+}
+
+.danmuSender .icon {
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-bottom: 2px;
+}
+
+.danmuSender .medal {
+  margin-bottom: 4px;
+}
+
+.userLv {
+  display: inline-block;
+  height: 14px;
+  line-height: 14px;
+  white-space: nowrap;
+  font-size: 13px;
+  vertical-align: middle;
+  margin-bottom: 2px;
+}
+
+.userLv .label {
+  position: relative;
+  display: block;
+  width: 40px;
+  border-radius: 2px;
+  text-align: center;
+  padding: 0 2px;
+}
+
+.ul0 {
+  color: #969696;
+  border: 1px solid #969696;
+}
+
+.ul11 {
+  color: #61c05a;
+  border: 1px solid #61c05a;
+}
+
+.ul21 {
+  color: #5896de;
+  border: 1px solid #5896de;
+}
+
+.ul31 {
+  color: #a068f1;
+  border: 1px solid #a068f1;
+}
+
+.ul41 {
+  color: #ff86b2;
+  border: 1px solid #ff86b2;
+}
+
+.ul51 {
+  color: #ff9f3d;
+  border: 1px solid #ff9f3d;
+}
+
+.bubble {
+  padding: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bubble:after {
+  clear: both;
+  content: '';
+}
+
+.bubble .content {
+  width: auto;
+  padding: 0.4em 0.5em;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid;
+  position: relative;
+  display: inline-block;
+}
+
+.bubble .content:before {
+  content: '';
+  display: inline-block;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  position: absolute;
+  background-color: inherit;
+  border-right-color: inherit;
+  border-bottom-color: inherit;
+}
+
+.bubble.left {
+  text-align: left;
+}
+
+.bubble.right {
+  text-align: right;
+  margin-right: 18px;
+}
+
+.bubble.left .content {
+  background: #fafafa;
+  border-color: #c6c6c6;
+}
+
+.bubble.left .content:before {
+  left: -6px;
+  top: 6px;
+  transform: rotate(135deg);
+}
+
+.bubble.right .content {
+  background: #fb7299;
+  border-color: #fb7299;
+  text-align: left;
+}
+
+.bubble.right .content:before {
+  right: -6px;
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
+.danmuTime {
+  font-size: 10px;
+  color: #999999;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 #setting {

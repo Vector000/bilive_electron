@@ -15,6 +15,7 @@ class BiLive {
   // 是否开启抽奖
   private _raffle = false
   // 全局计时器
+  private _lastTime = ''
   public loop!: NodeJS.Timer
   /**
    * 开始主程序
@@ -33,7 +34,6 @@ class BiLive {
     }
     _user.forEach(user => user.getUserInfo()) // 启动时更新
     _user.forEach(user => user.daily())
-    _user.forEach(user => user.getGuard()) //先看看上船情况，万一漏了呢（
     _user.forEach(user => user.userData.ban = false)
     this.loop = setInterval(() => this._loop(), 59 * 1000)
     new Options().Start()
@@ -49,6 +49,8 @@ class BiLive {
     const csttime = Date.now() + 8 * 60 * 60 * 1000
     const cst = new Date(csttime)
     const cstString = cst.toUTCString().substr(17, 5) // 'HH:mm'
+    if (cstString === this._lastTime) return
+    this._lastTime = cstString
     const cstHour = cst.getUTCHours()
     const cstMin = cst.getUTCMinutes()
     if (cstString === '00:10') _user.forEach(user => user.nextDay())// 每天00:10刷新任务
@@ -64,6 +66,8 @@ class BiLive {
       else this._raffle = true
     }
     else this._raffle = true
+    // 更新监听房间
+    this._SYSListener.updateAreaRoom()
     // 清空ID缓存
     this._SYSListener.clearAllID()
   }
