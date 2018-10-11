@@ -313,7 +313,7 @@ class User extends Online {
     const uid = this.userData.biliUID
     const wearInfo = await tools.XHR<wearInfo>({
       method: `POST`,
-      uri: `${apiLiveOrigin}/live_user/v1/userInfo/get_weared_medal`,
+      uri: `${apiLiveOrigin}/live_user/v1/UserInfo/get_weared_medal`,
       body: `source=1&uid=${uid}&target_id=11153765&csrf_token=${tools.getCookie(this.jar, 'bili_jct')}`,//使用3号直播间查询
       json: true,
       jar: this.jar,
@@ -324,7 +324,7 @@ class User extends Online {
       const room_id = wearInfo.body.data.roominfo.room_id
       const mid = wearInfo.body.data.roominfo.uid
       const day_limit = wearInfo.body.data.day_limit
-      const today_feed  = parseInt(wearInfo.body.data.today_feed)
+      const today_feed = parseInt(wearInfo.body.data.today_feed)
       let intimacy_needed = day_limit - today_feed
       if (intimacy_needed === 0) return tools.Log(this.nickname,`亲密度已达上限`)
       // 获取包裹信息

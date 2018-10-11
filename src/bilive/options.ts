@@ -4,7 +4,7 @@ import tools from './lib/tools'
 import User from './user'
 import DMclient from './dm_client_re'
 import { _options, _user } from './index'
-import { ipcMain, webContents } from 'electron'
+import { ipcMain, BrowserWindow } from 'electron'
 
 /**
  * 程序设置
@@ -23,9 +23,17 @@ class Options extends EventEmitter {
    *
    * @private
    * @type {Map<number, DMclient>}
-   * @memberof Listener
+   * @memberof Options
    */
   private _DMclient: Map<number, DMclient> = new Map()
+  /**
+   * 上条弹幕时间
+   *
+   * @private
+   * @type {number}
+   * @memberof Options
+   */
+   private _lastTime: number = 0
 
   public Start() {
     this._ipcListener()
@@ -162,7 +170,13 @@ class Options extends EventEmitter {
           const roomID = tools.getLongRoomID(arg.roomid)
           const newDMclient = new DMclient({ roomID, userID })
           newDMclient
-            .on('DANMU_MSG', dataJson => this._DanmuHandler(dataJson))
+            .on('DANMU_MSG', dataJson => {
+              if (new Date().getTime() - this._lastTime < 1000) {
+                this._DanmuHandler(dataJson, false)
+              }
+              else this._DanmuHandler(dataJson, true)
+              this._lastTime = new Date().getTime()
+            })
             .Connect()
           this._DMclient.set(roomID, newDMclient)
           event.sender.send('MTOR', {
@@ -173,7 +187,7 @@ class Options extends EventEmitter {
           break
         // 断开弹幕服务器
         case 'danmuServerDisconnect': {
-          const roomID = arg.roomid
+          const roomID = tools.getLongRoomID(arg.roomid)
           const newDMclient = <DMclient>this._DMclient.get(roomID)
           newDMclient.removeAllListeners().Close()
           this._DMclient.delete(roomID)
@@ -208,7 +222,7 @@ class Options extends EventEmitter {
     })
   }
 
-  private async _DanmuHandler(dataJson: DANMU_MSG) {
+  private async _DanmuHandler(dataJson: DANMU_MSG, avatar: boolean) {
     const danmu = dataJson.info[1]
     const uid = dataJson.info[2][0]
     const nickname = dataJson.info[2][1]
@@ -218,24 +232,31 @@ class Options extends EventEmitter {
     const medal = dataJson.info[3][1]
     const ul = dataJson.info[4][0]
     const rank = dataJson.info[4][3]
-    let face: string = ""
-    const getInfo = await tools.XHR<getInfo>({
-      method: 'POST',
-      uri: `http://space.bilibili.com/ajax/member/GetInfo`,
-      body: `mid=${uid}&csrf=""`,
-      json: true,
-      headers: {
-        "Host": "space.bilibili.com",
-        "Origin": "http://space.bilibili.com",
-        "Referer": `http://space.bilibili.com/${uid}`
-      }
+    const ts = new Date().toString().substr(16,8)
+    let face = "./lib/noface.gif"
+    _user.forEach((user) => {
+      if (uid === user.userData.biliUID) face = user.userData.face
     })
-    if (getInfo !== undefined) face = getInfo.body.data.face
-    let allContents = webContents.getAllWebContents()
-    allContents.forEach((windowContent) => {
-      windowContent.send('MTOR', {
+    if (avatar === true) {
+      const getInfo = await tools.XHR<getInfo>({
+        method: 'POST',
+        uri: `https://space.bilibili.com/ajax/member/GetInfo`,
+        body: `mid=${uid}&csrf=`,
+        json: true,
+        headers: {
+          "Host": "space.bilibili.com",
+          "Origin": "https://space.bilibili.com",
+          "Referer": `https://space.bilibili.com/${uid}/`
+        }
+      })
+      if (getInfo === undefined) return
+      face = getInfo.body.data.face
+    }
+    let allWindows = BrowserWindow.getAllWindows()
+    allWindows.forEach((window) => {
+      window.webContents.send('MTOR', {
         cmd: 'danmuServerReturn',
-        data: { danmu, uid, nickname, vip, svip, medalLv, medal, ul, rank, face }
+        data: { danmu, uid, nickname, vip, svip, medalLv, medal, ul, rank, face, ts }
       })
     })
   }

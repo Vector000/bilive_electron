@@ -11,6 +11,11 @@ html {
   margin-bottom: 40px;
 }
 
+#nav {
+  position: fixed;
+  top: 0;
+}
+
 #userInfo {
   margin-top: 70px;
 }
@@ -162,7 +167,7 @@ html {
   margin-top: 60px;
 }
 
-#danmuServer .danmuContainer {
+#danmuContainer {
   height: 360px;
   overflow-y: auto;
 }
@@ -312,7 +317,7 @@ html {
 }
 
 .userSettings {
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .userSettingItem {

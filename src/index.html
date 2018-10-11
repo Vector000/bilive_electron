@@ -35,7 +35,7 @@
           </v-list-tile>
         </v-list>
       </v-navigation-drawer>
-      <v-toolbar color="#fb7299" dense="dense" fixed="fixed" clipped-left="clipped-left" app="app" absolute="absolute">
+      <v-toolbar id="nav" color="#fb7299" dense="dense" fixed="fixed" clipped-left="clipped-left" app="app" absolute="absolute">
         <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         <v-toolbar-title class="mr-5 align-center">
           <span class="title">{{ pageTitle }}</span>
@@ -227,7 +227,7 @@
             </v-flex>
           </v-layout>
         </v-container>
-        <div class="danmuContainer">
+        <div id="danmuContainer">
           <v-container fluid grid-list-md>
             <v-layout row>
               <v-flex xs12>
@@ -244,24 +244,21 @@
                     <v-spacer v-if="item.user.uid === danmuServer.uid"></v-spacer>
                     <div>
                       <div class="danmuSender">
-                        <v-icon class="icon" :class="vipStatus(item.user.vip, item.user.svip)[0]"></v-icon>
-                        <span class="medal" :class="medalColor(item.user.medalLv)" v-if="item.user.medal.length !== 0">
+                        <v-icon class="icon" :class="vipStatus(item.user.vip, item.user.svip)[0]" v-if="item.user.vip === 1"></v-icon>
+                        <span class="medal" :class="medalColor(item.user.medalLv)" v-if="item.user.medal !== undefined">
                           <span class="label">{{ item.user.medal }}</span><span class="level">{{ item.user.medalLv }}</span>
                         </span>
-                        <span class="medal lv0" v-if="item.user.medal.length === 0">
-                          <span class="label">无勋章</span><span class="level">0</span>
-                        </span>
-                        <span class="userLv" :class="ulColor(item.user.ul)" v-if="item.user.medal.length >= 0">
+                        <span class="userLv" :class="ulColor(item.user.ul)" v-if="item.user.ul >= 0">
                           <span class="label">UL {{ item.user.ul }}</span>
                         </span>
                         <span>{{ item.user.nickname }}</span>
                       </div>
                       <div>
-                        <span class="danmuTime" v-if="item.user.uid === danmuServer.uid">{{ new Date().toString().substr(16,5) }}</span>
+                        <span class="danmuTime" v-if="item.user.uid === danmuServer.uid">{{ item.ts }}</span>
                         <div class="bubble" :class="bubbleClass(item.user.uid, danmuServer.uid)">
                           <div class="content">{{ item.danmu }}</div>
                         </div>
-                        <span class="danmuTime" v-if="item.user.uid !== danmuServer.uid">{{ new Date().toString().substr(16,5) }}</span>
+                        <span class="danmuTime" v-if="item.user.uid !== danmuServer.uid">{{ item.ts }}</span>
                       </div>
                     </div>
                     <v-list-tile-avatar v-if="item.user.uid === danmuServer.uid">
@@ -275,7 +272,7 @@
         </div>
         <v-container fluid grid-list-md>
           <v-flex xs12>
-            <v-text-field color="#fb7299" v-model="danmuServer.sendMsg" :append-outer-icon="'send'" box clear-icon="close" clearable label="发送消息" type="text" @click:append-outer="sendMessage" @click:clear="clearMessage"></v-text-field>
+            <v-text-field color="#fb7299" v-model="danmuServer.sendMsg" v-on:keyup.enter="sendMessage" :append-icon="'arrow_downward'" :append-outer-icon="'send'" box clear-icon="close" clearable label="发送消息" type="text" @click:append="scrollDanmu" @click:append-outer="sendMessage" @click:clear="clearMessage"></v-text-field>
           </v-flex>
         </v-container>
       </v-card>
