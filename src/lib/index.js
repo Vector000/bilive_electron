@@ -91,8 +91,8 @@ ipcRenderer.on('MTOR', (event, arg) => {
           return;
         }
         if (arg.data.danmu !== undefined) {
-          if (app.danmuServer.danmuItem.length > 100) app.danmuServer.danmuItem.shift()
-          app.danmuServer.danmuItem.push({
+          if (app.danmuServer.danmuItem.length > 100) app.danmuServer.danmuItem.shift() // 100弹幕限制
+          let tmp = {
             user: {
               nickname: arg.data.nickname,
               uid: arg.data.uid,
@@ -104,8 +104,13 @@ ipcRenderer.on('MTOR', (event, arg) => {
               rank: arg.data.rank,
               face: arg.data.face
             },
-            danmu: arg.data.danmu
-          });
+            danmu: arg.data.danmu,
+            ts: arg.data.ts
+          }
+          app.danmuServer.danmuItem.push(tmp);
+          if (tmp.user.uid === app.danmuServer.uid) setTimeout(function(){
+            app.scrollDanmu();
+          }, 500);
         }
         break;
       }
@@ -221,10 +226,10 @@ let app = new Vue({
         id: null,
         bagId: null,
         name: null,
-        price: null,
+        price: 0,
         num: null,
-        sendNum: null,
-        sendRoom: null
+        sendNum: 0,
+        sendRoom: 0
       }
     },
     dialog: {
@@ -245,14 +250,15 @@ let app = new Vue({
       return;
     },
     danmuServerConnect: function() {
-      if (!(this.danmuServer.uid >= 0)) {
-        showSnackBar(`uid应为有效值`);
+      if (!(this.danmuServer.uid >= 0) || this.danmuServer.uid === "") {
+        showSnackBar(`UID应为有效值`);
         return;
       }
       if (!(this.danmuServer.roomid > 0)) {
         showSnackBar(`房间号应为有效值`);
         return;
       }
+      this.danmuServer.danmuItem = [];
       ipcRenderer.send('RTOM', {
         cmd: 'danmuServerConnect',
         UID: this.danmuServer.uid,
@@ -260,7 +266,7 @@ let app = new Vue({
       });
     },
     danmuServerDisconnect: function() {
-      this.danmuServer.danmuItem.splice(0, this.danmuServer.danmuItem.length);
+      this.danmuServer.danmuItem = [];
       ipcRenderer.send('RTOM', {
         cmd: 'danmuServerDisconnect',
         roomid: this.danmuServer.roomid
@@ -303,6 +309,10 @@ let app = new Vue({
         this.topButtonShow = false;
       }
     },
+    scrollDanmu: function() { // 移动弹幕显示到底部
+      let div = document.getElementById('danmuContainer');
+      div.scrollTop = div.scrollHeight;
+    },
     sendGift: function(uid, giftItem) { // 生成送礼Dialog
       this.sendDialog.uid = uid;
       this.sendDialog.giftItem = giftItem;
@@ -323,8 +333,15 @@ let app = new Vue({
         data: sendItem
       });
     }, //
-    sendMessage: function() { // 清除弹幕发送框
-      if (this.danmuServer.uid === 0) {
+    sendMessage: function() { // 弹幕发送
+      let tmp = this.danmuServer.sendMsg;
+      this.clearMessage();
+      if (tmp.length === 0) return;
+      else if (this.danmuServer.connected !== true) {
+        showSnackBar(`未连接弹幕服务器`);
+        return;
+      }
+      else if (this.danmuServer.uid === 0) {
         showSnackBar(`游客UID不能发送弹幕`);
         return;
       }
@@ -332,9 +349,8 @@ let app = new Vue({
         cmd: 'sendMessage',
         UID: this.danmuServer.uid,
         roomid: this.danmuServer.roomid,
-        msg: this.danmuServer.sendMsg
+        msg: tmp
       });
-      this.clearMessage()
     },
     setConfig: function() { // 发送setConfig事件
       ipcRenderer.send('RTOM', {
@@ -350,7 +366,7 @@ let app = new Vue({
       });
     },
     showAbout: function() { // 显示About
-      let msg = [`Bilive_Electron 1.0.1(b20180930)`,
+      let msg = [`Bilive_Electron 1.0.6(b20181011)`,
         `基于bilive_client的Electron桌面应用`,
         `Made By Vector000, 请尽情食用吧XD`
       ];
@@ -399,13 +415,13 @@ let app = new Vue({
       }
     },
     ulColor: function(level) { // 勋章颜色动态class，觉得应该用computed
-      if (level >= 0 && level < 10)
+      if (level >= 0 && level <= 10)
         return 'ul0'
-      else if (level >= 11 && level < 20)
+      else if (level >= 11 && level <= 20)
         return 'ul11'
-      else if (level >= 21 && level < 30)
+      else if (level >= 21 && level <= 30)
         return 'ul21'
-      else if (level >= 31 && level < 40)
+      else if (level >= 31 && level <= 40)
         return 'ul31'
       else if (level >= 41 && level <= 50)
         return 'ul41'

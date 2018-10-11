@@ -313,7 +313,7 @@ class User extends Online {
     const uid = this.userData.biliUID
     const wearInfo = await tools.XHR<wearInfo>({
       method: `POST`,
-      uri: `${apiLiveOrigin}/live_user/v1/userInfo/get_weared_medal`,
+      uri: `${apiLiveOrigin}/live_user/v1/UserInfo/get_weared_medal`,
       body: `source=1&uid=${uid}&target_id=11153765&csrf_token=${tools.getCookie(this.jar, 'bili_jct')}`,//使用3号直播间查询
       json: true,
       jar: this.jar,

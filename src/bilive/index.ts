@@ -34,8 +34,8 @@ class BiLive {
     }
     _user.forEach(user => user.getUserInfo()) // 启动时更新
     _user.forEach(user => user.daily())
-    _user.forEach(user => user.userData.ban = false)
-    this.loop = setInterval(() => this._loop(), 59 * 1000)
+    _user.forEach(user => user.autoSend())
+    this.loop = setInterval(() => this._loop(), 58 * 1000)
     new Options().Start()
     this.Listener()
   }

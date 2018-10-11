@@ -32,5 +32,7 @@ Release可以直接下载使用，目前没有做linux包的打算，有兴趣�
 
 ## Thanks
 * 感谢[lzghzr/bilive_client](https://github.com/lzghzr/bilive_client)
+* 感谢[Dawnnnnnn/bilibili-live-tools](https://github.com/Dawnnnnnn/bilibili-live-tools)
+* 感谢[czp3009/bilibili-api](https://github.com/czp3009/bilibili-api)
 * 感谢[Hochikong](https://github.com/hochikong)带我进了Electron+Vue的坑
 * 感谢各种破站api的搜集者

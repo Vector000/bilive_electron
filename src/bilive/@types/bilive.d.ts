@@ -870,7 +870,7 @@ interface medalInfoDataInfo {
   dayLimit: number
 }
 /**
- * giftConfig
+ * giftConfig 测试用
  *
  * @interface giftConfig
  */
