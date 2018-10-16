@@ -120,16 +120,21 @@ class User extends Online {
    */
   public async treasureBox() {
     if (this._treasureBox || !this.userData.treasureBox) return
-    if (new Date().getTime() - this.userData.banTime < 5 * 60 * 60 * 1000) return // 5h ban determine
+    if (new Date().getTime() - this.userData.banTime < 12 * 60 * 60 * 1000) return // 12h
     // 获取宝箱状态,换房间会重新冷却
     const currentTask = await tools.XHR<currentTask>({
       uri: `${apiLiveOrigin}/mobile/freeSilverCurrentTask?${AppClient.signQueryBase(this.tokenQuery)}`,
       json: true,
       headers: this.headers
     }, 'Android')
-    if (currentTask === undefined) return
-    if (currentTask.response.statusCode === 200) {
+    if (currentTask !== undefined && currentTask.response.statusCode === 200) {
       if (currentTask.body.code === 0) {
+        if (this.userData.ban) {
+          tools.sendSCMSG(`${this.nickname} 已解除封禁`)
+          this.userData.ban = false
+          this.userData.banTime = 0
+          tools.Options(_options)
+        }
         await tools.Sleep(currentTask.body.data.minute * 6e4)
         await tools.XHR<award>({
           uri: `${apiLiveOrigin}/mobile/freeSilverAward?${AppClient.signQueryBase(this.tokenQuery)}`,
@@ -142,14 +147,15 @@ class User extends Online {
         this._treasureBox = true
         tools.Log(this.nickname, '每日宝箱', '已领取所有宝箱')
       }
-    }
-    else if (currentTask.body.code === 400 && currentTask.body.msg === '访问被拒绝') {
-      if (this.userData.ban === false) {
-        tools.sendSCMSG(`${this.nickname} 已被封禁`)
-        this.userData.ban = true
+      else if (currentTask.body.code === 400) {
+        if (!this.userData.ban) {
+          tools.sendSCMSG(`${this.nickname} 已被封禁`)
+          this.userData.ban = true
+        }
+        this.userData.banTime = new Date().getTime()
+        tools.Options(_options)
+        return
       }
-      this.userData.banTime = new Date().getTime()
-      tools.Options(_options)
     }
   }
   /**
@@ -517,21 +523,19 @@ class User extends Online {
    * @memberof User
    */
    public async getGuard() {
+     if (this.userData.getGuard) return
+     if (new Date().getTime() - this.userData.banTime < 12 * 60 * 60 * 1000) return // 12h
      const guardInfosRAW = await tools.XHR({
        uri: `http://118.25.108.153:8080/guard`,
-       headers: {
-         "User-Agent": `bilibili-live-tools/${this.userData.biliUID}`
-       },
+       headers: { "User-Agent": `bilibili-live-tools/${this.userData.biliUID}` },
        json: true
      })
      if (guardInfosRAW === undefined) return
-     let guardInfos = <guardInfos>({
-       data: []
-     })
+     let guardInfos = <guardInfos>({ data: [] })
      guardInfos.data = <guardInfo[]>guardInfosRAW.body
      for (let i=0;i<guardInfos.data.length;i++) {
        let guardInfo = guardInfos.data[i]
-       let guardType = ''
+       let guardType = '';
        if (guardInfo.Guard === 'Governor') continue
        if (guardInfo.Guard === 'Praefect') guardType = '提督'
        if (guardInfo.Guard === 'Captain') guardType = '舰长'
@@ -550,6 +554,12 @@ class User extends Online {
        await tools.Sleep(10 * 1000)
        if (guardRoom === undefined) continue
        if (guardRoom.body.code === 0 && guardRoom.body.data.length > 0) {
+         if (this.userData.ban) {
+           tools.sendSCMSG(`${this.nickname} 已解除封禁`)
+           this.userData.ban = false
+           this.userData.banTime = 0
+           tools.Options(_options)
+         }
          guardRoom.body.data.forEach(async (data) => {
            const guardJoin = await tools.XHR<guardJoin>({
              method: 'POST',
@@ -563,6 +573,15 @@ class User extends Online {
            if (guardJoin.body.code === 0) tools.Log(this.nickname, `${guardInfo.OriginRoomId} ${guardType}奖励`, guardJoin.body.data.message)
            await tools.Sleep(10 * 1000)
          })
+       }
+       else if (guardRoom.body.code === 400) {
+         if (!this.userData.ban) {
+           tools.sendSCMSG(`${this.nickname} 已被封禁`)
+           this.userData.ban = true
+         }
+         this.userData.banTime = new Date().getTime()
+         tools.Options(_options)
+         return
        }
        await tools.Sleep(30 * 1000)
      }

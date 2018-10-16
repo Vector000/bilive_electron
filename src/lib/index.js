@@ -7,9 +7,10 @@ ipcRenderer.on('MTOR', (event, arg) => {
         let date = new Date().toString().substr(4, 20);
         app.logData.push({
           time: date,
+          order: app.logData.length,
           content: arg.msg.join(' ')
         });
-        if (app.logData.length > 2500)
+        if (app.logData.length > 1500)
           app.logData.shift();
         break;
       }
@@ -176,11 +177,12 @@ let app = new Vue({
     pageTitle: "状态",
     users: [],
     search: "",
-    headers: [
+    logHeaders: [
       {
         text: "时间",
         description: "该条日志的时间",
         align: "left",
+        sortable: false,
         value: "time"
       },
       {
@@ -191,6 +193,11 @@ let app = new Vue({
         value: "content"
       }
     ],
+    logPagination: {
+      sortBy: "order",
+      descending: true,
+      rowsPerPageItems: [10, 50, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}]
+    },
     logData: [],
     danmuServer: {
       uid: 0,

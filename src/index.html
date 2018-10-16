@@ -188,7 +188,7 @@
           </v-layout>
         </v-container>
       </v-card>
-      <v-data-table class="zhFont" id="logList" :headers="headers" :items="logData" :search="search" item-key="id" v-show="logShow">
+      <v-data-table class="zhFont" id="logList" :headers="logHeaders" :items="logData" :search="search" :pagination.sync="logPagination" :rows-per-page-items="logPagination.rowsPerPageItems" v-show="logShow">
         <template slot="headerCell" slot-scope="props">
           <v-tooltip bottom="bottom">
             <span slot="activator">{{ props.header.text }}</span>
@@ -261,9 +261,14 @@
                         <span class="danmuTime" v-if="item.user.uid !== danmuServer.uid">{{ item.ts }}</span>
                       </div>
                     </div>
-                    <v-list-tile-avatar v-if="item.user.uid === danmuServer.uid">
-                      <img :src="item.user.face">
-                    </v-list-tile-avatar>
+                    <v-tooltip bottom="bottom">
+                      <span slot="activator">
+                        <v-list-tile-avatar v-if="item.user.uid === danmuServer.uid">
+                          <img :src="item.user.face">
+                        </v-list-tile-avatar>
+                      </span>
+                      <span>当前排名: {{ item.user.rank }}</span>
+                    </v-tooltip>
                   </v-list-tile>
                 </v-list>
               </v-flex>
@@ -388,6 +393,9 @@
                       <v-checkbox color="#fb7299" v-model="user.raffleLimit" label="抽奖限制"></v-checkbox>
                     </v-flex>
                     <v-flex class="userSettingItem" xs6="xs6">
+                      <v-switch color="#fb7299" v-model="user.getGuard" label="上船奖励"></v-switch>
+                    </v-flex>
+                    <v-flex class="userSettingItem" xs6="xs6">
                       <v-switch color="#fb7299" v-model="user.eventRoom" label="每日任务"></v-switch>
                     </v-flex>
                     <v-flex class="userSettingItem" xs6="xs6">
@@ -508,5 +516,4 @@
   </div>
 </body>
 <script src="lib/index.js"></script>
-
 </html>

@@ -57,6 +57,7 @@
     "raffleLimit": true,
     "ban": false,
     "banTime": 0,
+    "getGuard": false,
     "eventRoom": false,
     "silver2coin": false,
     "sendGift": false,

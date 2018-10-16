@@ -34,7 +34,6 @@ class BiLive {
     }
     _user.forEach(user => user.getUserInfo()) // 启动时更新
     _user.forEach(user => user.daily())
-    _user.forEach(user => user.autoSend())
     this.loop = setInterval(() => this._loop(), 58 * 1000)
     new Options().Start()
     this.Listener()
@@ -53,12 +52,12 @@ class BiLive {
     this._lastTime = cstString
     const cstHour = cst.getUTCHours()
     const cstMin = cst.getUTCMinutes()
-    if (cstString === '00:10') _user.forEach(user => user.nextDay())// 每天00:10刷新任务
-    if (cstString === '13:58') _user.forEach(user => user.sendGift())// 每天13:58再次自动送礼, 因为一般活动14:00结束
-    if (cstString === '02:28') _user.forEach(user => user.getGuard())// 每天02:28检查上船
-    if (cstMin === 30 && cstHour % 6 === 0) _user.forEach(user => user.daily())// 每天00:30, 06:30, 12:30, 18:30做日常
-    if (((cstHour - 1) % 12 === 0) && cstMin === 0) _user.forEach(user => user.autoSend())// 每天01:00, 13:00做自动送礼V2
-    const rafflePause = _options.config.rafflePause// 抽奖暂停
+    if (cstString === '00:10') _user.forEach(user => user.nextDay()) // 每天00:10刷新任务
+    if (cstString === '13:58') _user.forEach(user => user.sendGift()) // 每天13:58再次自动送礼, 因为一般活动14:00结束
+    if (cstString === '02:28') _user.forEach(user => user.getGuard()) // 每天02:28检查上船
+    if (cstMin === 30 && cstHour % 6 === 0) _user.forEach(user => user.daily()) // 每天00:30, 06:30, 12:30, 18:30做日常
+    if (((cstHour - 1) % 12 === 0) && cstMin === 0) _user.forEach(user => user.autoSend()) // 每天01:00, 13:00做自动送礼V2
+    const rafflePause = _options.config.rafflePause // 抽奖暂停
     if (rafflePause.length > 1) {
       const start = rafflePause[0]
       const end = rafflePause[1]

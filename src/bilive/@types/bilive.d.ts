@@ -62,7 +62,8 @@ interface userData {
   appraffle: boolean
   raffleLimit: boolean
   ban: boolean
-  banTime: number,
+  banTime: number
+  getGuard: boolean
   eventRoom: boolean
   silver2coin: boolean
   sendGift: boolean
